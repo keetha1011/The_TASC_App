@@ -57,4 +57,3 @@ Future<UserCredential> signInWithGoogle() async {
   print("WORKED");
   return await FirebaseAuth.instance.signInWithCredential(credential);
 }
-
