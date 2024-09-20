@@ -182,19 +182,21 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                     FirebaseAuth.instance.signOut();
                   },
                   child: Transform.scale(
-                    scaleX: 2.7,
-                    scaleY: 2.2,
-                    origin: Offset(0, 50),
+                    scaleX: 2,
+                    scaleY: 2,
+                    origin: Offset(0, 90),
                     child: Container(
                       width: screenWidth,
                       height: screenHeight,
                       decoration: BoxDecoration(
                         gradient: RadialGradient(colors: [
                           toColor("060110", opacity: 0.0),
-                          toColor("060110")
+                          toColor("060110", opacity: 0.6),
+                          toColor("060110"),
                         ], stops: const [
-                          0.7,
-                          1
+                          0.35,
+                          0.45,
+                          0.7
                         ]),
                       ),
                     ),
@@ -225,8 +227,11 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                       ),
                     ])),
                 Padding(
-                  padding: EdgeInsets.fromLTRB(0,
-                      screenHeight - _transparencyAnimation.value * 100, 0, 0),
+                  padding: EdgeInsets.fromLTRB(
+                      0,
+                      screenHeight - 10 - _transparencyAnimation.value * 100,
+                      0,
+                      0),
                   child: Align(
                     alignment: Alignment.topCenter,
                     child: fadeMeIn(
