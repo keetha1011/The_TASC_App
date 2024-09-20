@@ -68,23 +68,6 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                 GestureDetector(
                     onLongPress: () {
                       Vibration.vibrate(duration: 1000);
-                      // showDialog(
-                      //   context: context,
-                      //   builder: (context) => alertMe(
-                      //     context,
-                      //     "Login",
-                      //     [
-                      //       TextButton(
-                      //           onPressed: () {
-                      //             Navigator.of(context).pop();
-                      //           },
-                      //           child: Text("Ok"))
-                      //     ],
-                      //     const Text(
-                      //         "NiggerNiggerNiggerNiggerNiggerNiggerNiggerNiggerNiggerNiggerNiggerNigger"),
-                      //   ),
-                      // );
-
                       signInWithGoogle();
                     },
                     onDoubleTap: () {
