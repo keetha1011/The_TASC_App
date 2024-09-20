@@ -7,6 +7,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:vibration/vibration.dart';
 import 'dart:math';
 
+import 'home.dart';
+
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -18,6 +20,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
   late final MeshGradientController _meshController;
   late AnimationController _controller;
   late Animation<double> _transparencyAnimation;
+  bool _isAnimating = true;
 
   @override
   void initState() {
@@ -43,28 +46,28 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
             -1,
             0.2,
           ),
-          color: toColor("#030007"),
+          color: toColor("#010010"),
         ),
         MeshGradientPoint(
           position: const Offset(
             2,
             0.6,
           ),
-          color: toColor("#04010A"),
+          color: toColor("#020014"),
         ),
         MeshGradientPoint(
           position: const Offset(
             0.7,
             0.3,
           ),
-          color: toColor("050011"),
+          color: toColor("02001C"),
         ),
         MeshGradientPoint(
           position: const Offset(
             0.4,
             0.8,
           ),
-          color: toColor("#03000A"),
+          color: toColor("#010007"),
         ),
       ],
       vsync: this,
@@ -76,13 +79,14 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
 
   @override
   void dispose() {
+    _isAnimating = false;
+    _controller.stop();
     _meshController.dispose();
-
     super.dispose();
   }
 
   void _animateGradient() async {
-    while (true) {
+    while (_isAnimating) {
       await _meshController.animateSequence(
         duration: const Duration(seconds: 4),
         sequences: [
@@ -176,27 +180,34 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                 GestureDetector(
                   onLongPress: () {
                     Vibration.vibrate(duration: 100);
-                    signInWithGoogle();
-                  },
-                  onDoubleTap: () {
-                    signOut();
+                    try {
+                      signInWithGoogle().then((userCredential) {
+                        if (userCredential != null) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => const Home()),
+                          );
+                        } else {
+                          print('Sign-in failed');
+                        }
+                      });
+                    } catch (e) {}
                   },
                   child: Transform.scale(
-                    scaleX: 2,
-                    scaleY: 2,
-                    origin: Offset(0, 90),
+                    scaleX: 2.8,
+                    scaleY: 2.8,
+                    origin: const Offset(0, 67),
                     child: Container(
                       width: screenWidth,
                       height: screenHeight,
                       decoration: BoxDecoration(
                         gradient: RadialGradient(colors: [
                           toColor("060110", opacity: 0.0),
-                          toColor("060110", opacity: 0.6),
-                          toColor("060110"),
+                          toColor("060110", opacity: 0.8),
                         ], stops: const [
-                          0.35,
-                          0.45,
-                          0.7
+                          0.5,
+                          1,
                         ]),
                       ),
                     ),
@@ -216,7 +227,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                         alignment: Alignment.topCenter,
                         child: fadeMeIn(
                             Text(
-                              "DEPARTMENT OF AIML\n User is ${FirebaseAuth.instance.currentUser?.email}",
+                              "DEPARTMENT OF AIML",
                               textAlign: TextAlign.center,
                               style: GoogleFonts.encodeSansCondensed(
                                   fontSize: 14,
@@ -252,6 +263,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
 }
 
 Future<UserCredential> signInWithGoogle() async {
+  await GoogleSignIn().signOut();
   final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
   final GoogleSignInAuthentication? googleAuth =
       await googleUser?.authentication;
@@ -262,7 +274,17 @@ Future<UserCredential> signInWithGoogle() async {
   return await FirebaseAuth.instance.signInWithCredential(credential);
 }
 
-Future<void> signOut() async {
+Future<void> signOut(context) async {
+  GoogleSignIn().disconnect();
+  GoogleSignIn().signOut();
+  FirebaseAuth.instance.signOut();
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(builder: (context) => const Login()),
+  );
+}
+
+Future<void> signOutWithoutContext() async {
   GoogleSignIn().disconnect();
   GoogleSignIn().signOut();
   FirebaseAuth.instance.signOut();
