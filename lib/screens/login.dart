@@ -179,7 +179,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                     signInWithGoogle();
                   },
                   onDoubleTap: () {
-                    FirebaseAuth.instance.signOut();
+                    signOut();
                   },
                   child: Transform.scale(
                     scaleX: 2,
@@ -260,4 +260,10 @@ Future<UserCredential> signInWithGoogle() async {
     idToken: googleAuth?.idToken,
   );
   return await FirebaseAuth.instance.signInWithCredential(credential);
+}
+
+Future<void> signOut() async {
+  GoogleSignIn().disconnect();
+  GoogleSignIn().signOut();
+  FirebaseAuth.instance.signOut();
 }
