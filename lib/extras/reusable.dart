@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 Color Light = toColor("#e7e3ff");
@@ -83,7 +82,7 @@ fadeMeIn(Widget wid, double delay) {
       FadeEffect(
         delay: delay.ms,
         begin: 0,
-        duration: Duration(milliseconds: 800),
+        duration: const Duration(milliseconds: 800),
         curve: Curves.easeIn,
       ),
       const SlideEffect(

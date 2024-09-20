@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:tasc/extras/reusable.dart';
-import 'package:tasc/main.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:vibration/vibration.dart';
 
@@ -67,23 +68,13 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                 GestureDetector(
                     onLongPress: () {
                       Vibration.vibrate(duration: 1000);
-                      showDialog(
-                          context: context,
-                          builder: (context) => alertMe(
-                              context,
-                              "Login",
-                              [
-                                TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text("Ok"))
-                              ],
-                              const Text(
-                                  "NiggerNiggerNiggerNiggerNiggerNiggerNiggerNiggerNiggerNiggerNiggerNigger")));
+                      signInWithGoogle();
+                    },
+                    onDoubleTap: () {
+                      signOut();
                     },
                     child: Transform.scale(
-                      origin: Offset(0, 100),
+                      origin: const Offset(0, 100),
                       scale: 1.78,
                       child: Container(
                         width: MediaQuery.of(context).size.width,
@@ -113,7 +104,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                         alignment: Alignment.topCenter,
                         child: fadeMeIn(
                             Text(
-                              "DEPARTMENT OF AIML",
+                              "DEPARTMENT OF AIML\n User is ${FirebaseAuth.instance.currentUser?.email}",
                               textAlign: TextAlign.center,
                               style: GoogleFonts.encodeSansCondensed(
                                   fontSize: 14,
@@ -130,7 +121,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
                     alignment: Alignment.topCenter,
                     child: fadeMeIn(
                         Text(
-                          "Long Press To Login",
+                          "Long Press To Login\nDouble Tap to Sign Out",
                           textAlign: TextAlign.center,
                           style: GoogleFonts.encodeSansCondensed(
                               fontSize: 14,
@@ -144,4 +135,21 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
               ]);
             }));
   }
+}
+
+Future<UserCredential> signInWithGoogle() async {
+  final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  final GoogleSignInAuthentication? googleAuth =
+      await googleUser?.authentication;
+  final credential = GoogleAuthProvider.credential(
+    accessToken: googleAuth?.accessToken,
+    idToken: googleAuth?.idToken,
+  );
+  return await FirebaseAuth.instance.signInWithCredential(credential);
+}
+
+Future<void> signOut() async {
+  GoogleSignIn().disconnect();
+  GoogleSignIn().signOut();
+  FirebaseAuth.instance.signOut();
 }
