@@ -182,15 +182,10 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
                     Vibration.vibrate(duration: 100);
                     try {
                       signInWithGoogle().then((userCredential) {
-                        if (userCredential != null) {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const Home()),
-                          );
-                        } else {
-                          print('Sign-in failed');
-                        }
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const Home()),
+                        );
                       });
                     } catch (e) {}
                   },
@@ -264,7 +259,8 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
 
 Future<UserCredential> signInWithGoogle() async {
   await GoogleSignIn().signOut();
-  final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: ['profile', 'email']).signIn();
+  final GoogleSignInAccount? googleUser =
+      await GoogleSignIn(scopes: ['profile', 'email']).signIn();
   final GoogleSignInAuthentication? googleAuth =
       await googleUser?.authentication;
   final credential = GoogleAuthProvider.credential(

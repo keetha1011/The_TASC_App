@@ -30,7 +30,7 @@ class MainApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Mane',
+        title: 'TASC',
         theme: ThemeData(
           useMaterial3: false,
           primarySwatch: Colors.indigo,
@@ -41,6 +41,8 @@ class MainApp extends StatelessWidget {
 }
 
 class AuthenticationWrapper extends StatefulWidget {
+  const AuthenticationWrapper({super.key});
+
   @override
   _AuthenticationWrapperState createState() => _AuthenticationWrapperState();
 }
