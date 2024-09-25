@@ -264,7 +264,7 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
 
 Future<UserCredential> signInWithGoogle() async {
   await GoogleSignIn().signOut();
-  final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+  final GoogleSignInAccount? googleUser = await GoogleSignIn(scopes: ['profile', 'email']).signIn();
   final GoogleSignInAuthentication? googleAuth =
       await googleUser?.authentication;
   final credential = GoogleAuthProvider.credential(
