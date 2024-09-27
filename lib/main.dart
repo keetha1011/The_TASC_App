@@ -32,7 +32,7 @@ class MainApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'TASC',
         theme: ThemeData(
-          useMaterial3: false,
+          useMaterial3: true,
           primarySwatch: Colors.indigo,
           fontFamily: GoogleFonts.josefinSans().fontFamily,
         ),

@@ -1,5 +1,5 @@
 name: tasc
-description: "A new Flutter project."
+description: "Flutter Application for TASC Admins"
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -19,6 +19,11 @@ dependencies:
   mesh_gradient: ^1.3.7
   connectivity_plus: ^6.0.3
   flutter_expandable_fab: ^2.3.0
+  orm: ^5.1.1
+  orm_flutter: ^0.2.0
+  postgres: ^3.4.0
+  flutter_native_splash: ^2.4.1
+  flutter_launcher_icons: ^0.14.1
 
 dev_dependencies:
   flutter_test:
@@ -33,3 +38,22 @@ flutter:
   assets:
     - assets/Images/
     - assets/Logo/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "assets/Logo/tasclogo.png"
+  adaptive_icon_background: "assets/Logo/tasclogo_background.png"
+  adaptive_icon_foreground: "assets/Logo/tasclogo_foreground.png"
+
+flutter_native_splash:
+  color: "#1b0772"
+  color_dark: "#1b0772"
+  image: "assets/Logo/tasclogo_resized.png"
+  image_dark: "assets/Logo/tasclogo_resized.png"
+
+  android_12:
+    color: "#1b0772"
+    color_dark: "#1b0772"
+    image: "assets/Logo/tasclogo_resized.png"
+    image_dark: "assets/Logo/tasclogo_resized.png"

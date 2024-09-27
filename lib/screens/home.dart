@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
-import 'package:tasc/extras/reusable.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:tasc/screens/login.dart';
 import 'package:tasc/screens/patents.dart';
 
@@ -19,11 +17,11 @@ class _HomeState extends State<Home> {
       floatingActionButtonLocation: ExpandableFab.location,
       floatingActionButton: ExpandableFab(
         type: ExpandableFabType.fan,
-        pos: ExpandableFabPos.right,
-        fanAngle: 90,
+        pos: ExpandableFabPos.center,
+        fanAngle: 180,
         openButtonBuilder: RotateFloatingActionButtonBuilder(
             child: const Icon(Icons.settings),
-            fabSize: ExpandableFabSize.regular,
+            fabSize: ExpandableFabSize.large,
             shape: const CircleBorder()),
         closeButtonBuilder: DefaultFloatingActionButtonBuilder(
             child: const Icon(Icons.close),
@@ -37,7 +35,7 @@ class _HomeState extends State<Home> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const PatentsPage()),
+                  MaterialPageRoute(builder: (context) => PatentsPage()),
                 );
               }),
           FloatingActionButton.small(
