@@ -11,6 +11,7 @@ class PatentsPage extends StatefulWidget {
 
 class _PatentsPageState extends State<PatentsPage>
     with SingleTickerProviderStateMixin {
+  int currentPageIndex = 0;
   late final DataConnection _dataConnection;
   Map<int, List<List<dynamic>>> _patentsByYear = {};
   bool _isLoading = true;
@@ -63,8 +64,8 @@ class _PatentsPageState extends State<PatentsPage>
     });
 
     try {
-      final results =
-          await _dataConnection.fetchData('''SELECT * FROM "Patents" WHERE year='$year' ''');
+      final results = await _dataConnection
+          .fetchData('''SELECT * FROM "Patents" WHERE year='$year' ''');
       setState(() {
         _patentsByYear[year] = results;
         _isLoading = false;
@@ -102,22 +103,42 @@ class _PatentsPageState extends State<PatentsPage>
           tabs: _years.map((year) => Tab(text: year.toString())).toList(),
         ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: _years.map((year) => _buildBody(year)).toList(),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        items: const [
-          BottomNavigationBarItem(
-              icon: Icon(Icons.view_day_rounded), label: "View"),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.mode_edit_outline_rounded), label: "Edit")
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: currentPageIndex,
+        onDestinationSelected: (int index) {
+          setState(() {
+            currentPageIndex = index;
+          });
+        },
+        destinations: const <Widget>[
+          NavigationDestination(
+              icon: Icon(Icons.view_day_outlined),
+              selectedIcon: Icon(Icons.view_day_rounded),
+              label: "View"),
+          NavigationDestination(
+              icon: Icon(Icons.mode_edit_rounded),
+              selectedIcon: Icon(Icons.mode_edit_outline_rounded),
+              label: "Edit")
         ],
       ),
+      body: <Widget>[
+        TabBarView(
+          controller: _tabController,
+          children: _years.map((year) => _buildBodyView(year)).toList(),
+        ),
+        Scaffold(
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+
+            ],
+          ),
+        )
+      ][currentPageIndex],
     );
   }
 
-  Widget _buildBody(int year) {
+  Widget _buildBodyView(int year) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     } else if (_errorMessage != null) {

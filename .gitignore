@@ -51,4 +51,5 @@ google-services.json
 firebase_options.dart
 pubspec.lock
 /node_modules
+
 /lib/dbms/dbcreds.dart
