@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import 'package:tasc/screens/login.dart';
 import 'package:tasc/screens/patents.dart';
+import 'package:tasc/screens/placements.dart';
+import 'package:tasc/screens/publications.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -36,6 +38,22 @@ class _HomeState extends State<Home> {
                 Navigator.push(
                   context,
                   MaterialPageRoute(builder: (context) => PatentsPage()),
+                );
+              }),
+          FloatingActionButton.small(
+              child: const Text("pub"),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PublicationsPage()),
+                );
+              }),
+          FloatingActionButton.small(
+              child: const Text("pla"),
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => PlacementsPage()),
                 );
               }),
           FloatingActionButton.small(

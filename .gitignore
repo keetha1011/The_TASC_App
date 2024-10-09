@@ -53,3 +53,5 @@ pubspec.lock
 /node_modules
 
 /lib/dbms/dbcreds.dart
+/.env
+/package-lock.json

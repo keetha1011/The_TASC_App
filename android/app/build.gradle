@@ -8,7 +8,7 @@ plugins {
 android {
     namespace "com.example.tasc"
     compileSdk flutter.compileSdkVersion
-    ndkVersion flutter.ndkVersion
+    ndkVersion "27.1.12297006" //flutter.ndkVersion
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
@@ -22,7 +22,7 @@ android {
     defaultConfig {
         applicationId = "com.example.tasc"
         minSdk 27 //flutter.minSdkVersion
-        compileSdkVersion 34
+        compileSdkVersion flutter.compileSdkVersion
         targetSdk flutter.targetSdkVersion
         versionCode flutter.versionCode
         versionName flutter.versionName
