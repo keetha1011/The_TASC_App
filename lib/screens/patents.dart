@@ -24,9 +24,6 @@ class _PatentsPageState extends State<PatentsPage>
     super.initState();
     _dataConnection = DataConnection();
     _initializeConnection();
-    _tabController =
-        TabController(initialIndex: 0, length: _years.length, vsync: this);
-    _tabController.addListener(_handleTabChange);
   }
 
   @override
@@ -46,7 +43,12 @@ class _PatentsPageState extends State<PatentsPage>
         DBCreds.port,
       );
       await _fetchYears();
-      await _fetchPatents(int.parse(_years[0]));
+      _tabController =
+          TabController(initialIndex: 0, length: _years.length, vsync: this);
+      _tabController.addListener(_handleTabChange);
+      if(_years.isNotEmpty) {
+        await _fetchPatents(_years[0]);
+      }
     } catch (e) {
       _handleError("Error initializing the connection: $e");
     }
@@ -66,32 +68,22 @@ class _PatentsPageState extends State<PatentsPage>
       }
       setState(() {
         _years = tempYear;
-        _tabController =
-            TabController(initialIndex: 0, length: _years.length, vsync: this);
       });
     } catch (e) {
       _handleError('_fetchYears(): $e');
     }
   }
 
-  Future<void> _fetchPatents(int year) async {
-    if (_patentsByYear.containsKey(year)) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
+  Future<void> _fetchPatents(String year) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final results = await _dataConnection
+      final placements = await _dataConnection
           .fetchData('''SELECT * FROM "Patents" WHERE year='$year' ''');
       setState(() {
-        _patentsByYear[year] = results;
-        // print(_patentsByYear);
+        _patentsByYear[int.parse(year)] = placements;
         _isLoading = false;
       });
     } catch (e) {
@@ -101,7 +93,10 @@ class _PatentsPageState extends State<PatentsPage>
 
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
-      _fetchPatents(int.parse(_years[_tabController.index]));
+      final selectedYear = _years[_tabController.index];
+      if (!_patentsByYear.containsKey(int.parse(selectedYear))) {
+          _fetchPatents(selectedYear);
+      }
     }
   }
 
@@ -114,6 +109,11 @@ class _PatentsPageState extends State<PatentsPage>
 
   @override
   Widget build(BuildContext context) {
+    if (_years.isEmpty) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -149,7 +149,7 @@ class _PatentsPageState extends State<PatentsPage>
           controller: _tabController,
           children: _years.map((year) => _buildBodyView(int.parse(year))).toList(),
         ),
-        Scaffold(
+        const Scaffold(
           body: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -185,8 +185,8 @@ class _PatentsPageState extends State<PatentsPage>
                     height: 100,
                   ),
                 ),
-                title: Text(_patentsByYear[year]![index][3] as String),
-                subtitle: Text(_patentsByYear[year]![index][2] as String),
+                title: Text(_patentsByYear[year]![index][3]),
+                subtitle: Text(_patentsByYear[year]![index][2]),
               ),
             );
           },

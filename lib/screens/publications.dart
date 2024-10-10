@@ -24,9 +24,6 @@ class _PublicationsPageState extends State<PublicationsPage>
     super.initState();
     _dataConnection = DataConnection();
     _initializeConnection();
-    _tabController =
-        TabController(initialIndex: 0, length: _years.length, vsync: this);
-    _tabController.addListener(_handleTabChange);
   }
 
   @override
@@ -46,7 +43,13 @@ class _PublicationsPageState extends State<PublicationsPage>
         DBCreds.port,
       );
       await _fetchYears();
-      await _fetchPublications(int.parse(_years[0]));
+      _tabController =
+          TabController(initialIndex: 0, length: _years.length, vsync: this);
+      _tabController.addListener(_handleTabChange);
+      if(_years.isNotEmpty) {
+        await _fetchPublications(_years[0]);
+      }
+
     } catch (e) {
       _handleError("Error initializing the connection: $e");
     }
@@ -66,31 +69,22 @@ class _PublicationsPageState extends State<PublicationsPage>
       }
       setState(() {
         _years = tempYear;
-        _tabController =
-            TabController(initialIndex: 0, length: _years.length, vsync: this);
       });
     } catch (e) {
       _handleError('_fetchYears(): $e');
     }
   }
 
-  Future<void> _fetchPublications(int year) async {
-    if (_publicationsByYear.containsKey(year)) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
+  Future<void> _fetchPublications(String year) async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final results = await _dataConnection
+      final publications = await _dataConnection
           .fetchData('''SELECT * FROM "Publication" WHERE year='$year' ''');
       setState(() {
-        _publicationsByYear[year] = results;
+        _publicationsByYear[int.parse(year)] = publications;
         _isLoading = false;
       });
     } catch (e) {
@@ -100,7 +94,10 @@ class _PublicationsPageState extends State<PublicationsPage>
 
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
-      _fetchPublications(int.parse(_years[_tabController.index]));
+      final selectedYear = _years[_tabController.index];
+      if (!_publicationsByYear.containsKey(int.parse(selectedYear))) {
+        _fetchPublications(selectedYear);
+      }
     }
   }
 
@@ -113,6 +110,11 @@ class _PublicationsPageState extends State<PublicationsPage>
 
   @override
   Widget build(BuildContext context) {
+    if (_years.isEmpty) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -148,7 +150,7 @@ class _PublicationsPageState extends State<PublicationsPage>
           controller: _tabController,
           children: _years.map((year) => _buildBodyView(int.parse(year))).toList(),
         ),
-        Scaffold(
+        const Scaffold(
           body: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -184,8 +186,8 @@ class _PublicationsPageState extends State<PublicationsPage>
                     height: 100,
                   ),
                 ),
-                title: Text(_publicationsByYear[year]![index][3] as String),
-                subtitle: Text(_publicationsByYear[year]![index][2] as String),
+                title: Text(_publicationsByYear[year]![index][3]),
+                subtitle: Text(_publicationsByYear[year]![index][2]),
               ),
             );
           },

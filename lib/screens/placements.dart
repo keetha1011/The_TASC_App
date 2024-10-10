@@ -19,7 +19,6 @@ class _PlacementsPageState extends State<PlacementsPage>
   String? _errorMessage;
   late TabController _tabController;
   List<String> _years = [];
-  Map<int, List<List<dynamic>>> placementData = {};
 
   @override
   void initState() {
@@ -178,8 +177,12 @@ class _PlacementsPageState extends State<PlacementsPage>
           controller: _tabController,
           children: _years.map((year) => _buildBodyView(year)).toList(),
         ),
-        Scaffold(
-          body: Container(),
+        const Scaffold(
+          body: Column(mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+
+          ],
+          )
         ),
       ][currentPageIndex],
     );
