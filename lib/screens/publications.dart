@@ -3,21 +3,21 @@ import 'package:tasc/dbms/dbmanager.dart';
 import 'package:tasc/dbms/dbcreds.dart';
 
 class PublicationsPage extends StatefulWidget {
-  const PublicationsPage({Key? key}) : super(key: key);
+  const PublicationsPage({super.key});
 
   @override
   State<PublicationsPage> createState() => _PublicationsPageState();
 }
 
 class _PublicationsPageState extends State<PublicationsPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   int currentPageIndex = 0;
   late final DataConnection _dataConnection;
-  Map<int, List<List<dynamic>>> _publicationsByYear = {};
+  final Map<int, List<List<dynamic>>> _publicationsByYear = {};
   bool _isLoading = true;
   String? _errorMessage;
   late TabController _tabController;
-  final List<int> _years = [2024, 2023, 2022, 2021];
+  List<String> _years = [];
 
   @override
   void initState() {
@@ -45,9 +45,32 @@ class _PublicationsPageState extends State<PublicationsPage>
         DBCreds.password,
         DBCreds.port,
       );
-      await _fetchPublications(_years[0]);
+      await _fetchYears();
+      await _fetchPublications(int.parse(_years[0]));
     } catch (e) {
       _handleError("Error initializing the connection: $e");
+    }
+  }
+
+  Future<void> _fetchYears() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final completeYearTable =
+      await _dataConnection.fetchData('''SELECT year FROM "Patents" ORDER BY "year" DESC ''');
+      List<String> tempYear = [];
+      for (var i in completeYearTable) {
+        tempYear.add(i[0]);
+      }
+      setState(() {
+        _years = tempYear;
+        _tabController =
+            TabController(initialIndex: 0, length: _years.length, vsync: this);
+      });
+    } catch (e) {
+      _handleError('_fetchYears(): $e');
     }
   }
 
@@ -77,12 +100,11 @@ class _PublicationsPageState extends State<PublicationsPage>
 
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
-      _fetchPublications(_years[_tabController.index]);
+      _fetchPublications(int.parse(_years[_tabController.index]));
     }
   }
 
   void _handleError(String message) {
-    print(message);
     setState(() {
       _errorMessage = message;
       _isLoading = false;
@@ -124,7 +146,7 @@ class _PublicationsPageState extends State<PublicationsPage>
       body: <Widget>[
         TabBarView(
           controller: _tabController,
-          children: _years.map((year) => _buildBodyView(year)).toList(),
+          children: _years.map((year) => _buildBodyView(int.parse(year))).toList(),
         ),
         Scaffold(
           body: Column(

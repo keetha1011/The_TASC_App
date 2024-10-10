@@ -64,7 +64,7 @@ class _PlacementsPageState extends State<PlacementsPage>
 
     try {
       final completeYearTable =
-          await _dataConnection.fetchData('''SELECT * FROM "Year"''');
+          await _dataConnection.fetchData('''SELECT * FROM "Year" ORDER BY "year" DESC''');
       List<String> tempYear = [];
       for (var i in completeYearTable) {
         tempYear.add(i[1]);
@@ -177,6 +177,9 @@ class _PlacementsPageState extends State<PlacementsPage>
         TabBarView(
           controller: _tabController,
           children: _years.map((year) => _buildBodyView(year)).toList(),
+        ),
+        Scaffold(
+          body: Container(),
         ),
       ][currentPageIndex],
     );

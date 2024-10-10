@@ -10,14 +10,14 @@ class PatentsPage extends StatefulWidget {
 }
 
 class _PatentsPageState extends State<PatentsPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   int currentPageIndex = 0;
   late final DataConnection _dataConnection;
   final Map<int, List<List<dynamic>>> _patentsByYear = {};
   bool _isLoading = true;
   String? _errorMessage;
   late TabController _tabController;
-  final List<int> _years = [2024, 2023, 2022, 2021];
+  List<String> _years = [];
 
   @override
   void initState() {
@@ -35,7 +35,7 @@ class _PatentsPageState extends State<PatentsPage>
     _tabController.dispose();
     super.dispose();
   }
-
+  
   Future<void> _initializeConnection() async {
     try {
       await _dataConnection.openConnection(
@@ -45,9 +45,32 @@ class _PatentsPageState extends State<PatentsPage>
         DBCreds.password,
         DBCreds.port,
       );
-      await _fetchPatents(_years[0]);
+      await _fetchYears();
+      await _fetchPatents(int.parse(_years[0]));
     } catch (e) {
       _handleError("Error initializing the connection: $e");
+    }
+  }
+
+  Future<void> _fetchYears() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final completeYearTable =
+      await _dataConnection.fetchData('''SELECT year FROM "Patents" ORDER BY "year" DESC ''');
+      List<String> tempYear = [];
+      for (var i in completeYearTable) {
+        tempYear.add(i[0]);
+      }
+      setState(() {
+        _years = tempYear;
+        _tabController =
+            TabController(initialIndex: 0, length: _years.length, vsync: this);
+      });
+    } catch (e) {
+      _handleError('_fetchYears(): $e');
     }
   }
 
@@ -78,7 +101,7 @@ class _PatentsPageState extends State<PatentsPage>
 
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
-      _fetchPatents(_years[_tabController.index]);
+      _fetchPatents(int.parse(_years[_tabController.index]));
     }
   }
 
@@ -124,7 +147,7 @@ class _PatentsPageState extends State<PatentsPage>
       body: <Widget>[
         TabBarView(
           controller: _tabController,
-          children: _years.map((year) => _buildBodyView(year)).toList(),
+          children: _years.map((year) => _buildBodyView(int.parse(year))).toList(),
         ),
         Scaffold(
           body: Column(
