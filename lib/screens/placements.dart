@@ -3,30 +3,29 @@ import 'package:tasc/dbms/dbmanager.dart';
 import 'package:tasc/dbms/dbcreds.dart';
 
 class PlacementsPage extends StatefulWidget {
-  const PlacementsPage({Key? key}) : super(key: key);
+  const PlacementsPage({super.key});
 
   @override
   State<PlacementsPage> createState() => _PlacementsPageState();
 }
 
 class _PlacementsPageState extends State<PlacementsPage>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   int currentPageIndex = 0;
   late final DataConnection _dataConnection;
-  Map<int, List<List<dynamic>>> _placementsByYear = {};
+  final Map<int, List<List<dynamic>>> _placementsByYear = {};
+
   bool _isLoading = true;
   String? _errorMessage;
   late TabController _tabController;
-  final List<int> _years = [2024, 2023, 2022, 2021];
+  List<String> _years = [];
+  Map<int, List<List<dynamic>>> placementData = {};
 
   @override
   void initState() {
     super.initState();
     _dataConnection = DataConnection();
     _initializeConnection();
-    _tabController =
-        TabController(initialIndex: 0, length: _years.length, vsync: this);
-    _tabController.addListener(_handleTabChange);
   }
 
   @override
@@ -45,44 +44,91 @@ class _PlacementsPageState extends State<PlacementsPage>
         DBCreds.password,
         DBCreds.port,
       );
-      await _fetchPlacements(_years[0]);
+      await _fetchYears();
+      _tabController =
+          TabController(initialIndex: 0, length: _years.length, vsync: this);
+      _tabController.addListener(_handleTabChange);
+      if (_years.isNotEmpty) {
+        await _fetchPlacements(_years[0]);
+        await _fetchNamesAndCompany(_years[0]);
+      }
     } catch (e) {
       _handleError("Error initializing the connection: $e");
     }
   }
 
-  Future<void> _fetchPlacements(int year) async {
-    if (_placementsByYear.containsKey(year)) {
-      setState(() {
-        _isLoading = false;
-      });
-      return;
-    }
-
+  Future<void> _fetchYears() async {
     setState(() {
       _isLoading = true;
     });
 
     try {
-      final results = await _dataConnection
-          .fetchData('''SELECT * FROM "Placement"''');
+      final completeYearTable =
+          await _dataConnection.fetchData('''SELECT * FROM "Year"''');
+      List<String> tempYear = [];
+      for (var i in completeYearTable) {
+        tempYear.add(i[1]);
+      }
       setState(() {
-        _placementsByYear[year] = results;
+        _years = tempYear;
+      });
+    } catch (e) {
+      _handleError('_fetchYears(): $e');
+    }
+  }
+
+  Future<void> _fetchPlacements(String year) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      final placements = await _dataConnection.fetchData(
+          '''SELECT * FROM "Placement" WHERE "yearId"=(SELECT "id" FROM "Year" WHERE "year"='$year') ''');
+      setState(() {
+        _placementsByYear[int.parse(year)] = placements;
+      });
+    } catch (e) {
+      _handleError('Error fetching placements for year $year: $e');
+    }
+  }
+
+  Future<void> _fetchNamesAndCompany(String year) async {
+    try {
+      if (_placementsByYear[int.parse(year)] == null) return;
+
+      List<List<dynamic>> tempList = [];
+      for (var i in _placementsByYear[int.parse(year)]!) {
+        final id = i[2];
+        final name = await _dataConnection.fetchData(
+            '''SELECT "name" FROM "User" WHERE "id"=(SELECT "userId" FROM "Student" WHERE "id"='${i[2]}') ''');
+        final image = await _dataConnection.fetchData(
+            '''SELECT "image" FROM "Student" WHERE "id"='${i[2]}' ''');
+        // final companies = await _dataConnection.fetchData(
+        //     ''' SELECT "" ''');
+        tempList.add([id, name[0], image[0]]);
+      }
+      setState(() {
+        _placementsByYear[int.parse(year)] = tempList;
         _isLoading = false;
       });
     } catch (e) {
-      _handleError('Error fetching patents for year $year: $e');
+      _handleError("Error while fetching names and images: $e");
     }
   }
 
   void _handleTabChange() {
     if (!_tabController.indexIsChanging) {
-      _fetchPlacements(_years[_tabController.index]);
+      final selectedYear = _years[_tabController.index];
+      if (!_placementsByYear.containsKey(int.parse(selectedYear))) {
+        _fetchPlacements(selectedYear).then((_) {
+          _fetchNamesAndCompany(selectedYear);
+        });
+      }
     }
   }
 
   void _handleError(String message) {
-    print(message);
     setState(() {
       _errorMessage = message;
       _isLoading = false;
@@ -91,6 +137,12 @@ class _PlacementsPageState extends State<PlacementsPage>
 
   @override
   Widget build(BuildContext context) {
+    if (_years.isEmpty) {
+      return const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -126,44 +178,36 @@ class _PlacementsPageState extends State<PlacementsPage>
           controller: _tabController,
           children: _years.map((year) => _buildBodyView(year)).toList(),
         ),
-        Scaffold(
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-
-            ],
-          ),
-        )
       ][currentPageIndex],
     );
   }
 
-  Widget _buildBodyView(int year) {
+  Widget _buildBodyView(String year) {
     if (_isLoading) {
       return const Center(child: CircularProgressIndicator());
     } else if (_errorMessage != null) {
       return Center(child: Text("Fatal Error\n\n$_errorMessage"));
-    } else if (!_placementsByYear.containsKey(year) ||
-        _placementsByYear[year]!.isEmpty) {
+    } else if (!_placementsByYear.containsKey(int.parse(year)) ||
+        _placementsByYear[int.parse(year)]!.isEmpty) {
       return Center(child: Text("No Placements for $year"));
     } else {
       return Padding(
         padding: const EdgeInsets.all(8),
         child: ListView.builder(
-          itemCount: _placementsByYear[year]!.length,
+          itemCount: _placementsByYear[int.parse(year)]!.length,
           itemBuilder: (context, index) {
             return Card(
               child: ListTile(
                 leading: ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(8.0)),
                   child: Image.network(
-                    "https://firebasestorage.googleapis.com/v0/b/tasc-app-ae1ac.appspot.com/o/certificates%2F2024%2FEANF.png?alt=media",
+                    "${_placementsByYear[int.parse(year)]![index][2][0]}",
                     fit: BoxFit.cover,
                     height: 100,
                   ),
                 ),
-                title: Text(_placementsByYear[year]![index][3] as String),
-                subtitle: Text(_placementsByYear[year]![index][2] as String),
+                title: Text(_placementsByYear[int.parse(year)]![index][1][0]),
+                subtitle: Text(_placementsByYear[int.parse(year)]![index][1][0]),
               ),
             );
           },

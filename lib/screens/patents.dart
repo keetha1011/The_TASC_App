@@ -3,7 +3,7 @@ import 'package:tasc/dbms/dbmanager.dart';
 import 'package:tasc/dbms/dbcreds.dart';
 
 class PatentsPage extends StatefulWidget {
-  const PatentsPage({Key? key}) : super(key: key);
+  const PatentsPage({super.key});
 
   @override
   State<PatentsPage> createState() => _PatentsPageState();
@@ -13,7 +13,7 @@ class _PatentsPageState extends State<PatentsPage>
     with SingleTickerProviderStateMixin {
   int currentPageIndex = 0;
   late final DataConnection _dataConnection;
-  Map<int, List<List<dynamic>>> _patentsByYear = {};
+  final Map<int, List<List<dynamic>>> _patentsByYear = {};
   bool _isLoading = true;
   String? _errorMessage;
   late TabController _tabController;
@@ -68,6 +68,7 @@ class _PatentsPageState extends State<PatentsPage>
           .fetchData('''SELECT * FROM "Patents" WHERE year='$year' ''');
       setState(() {
         _patentsByYear[year] = results;
+        // print(_patentsByYear);
         _isLoading = false;
       });
     } catch (e) {
@@ -82,7 +83,6 @@ class _PatentsPageState extends State<PatentsPage>
   }
 
   void _handleError(String message) {
-    print(message);
     setState(() {
       _errorMessage = message;
       _isLoading = false;
