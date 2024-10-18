@@ -17,8 +17,10 @@ class _PlacementsPageState extends State<PlacementsPage>
 
   bool _isLoading = true;
   String? _errorMessage;
-  late TabController _tabController;
+  late TabController _tabControllerView;
+  late TabController _tabControllerEdit;
   List<String> _years = [];
+  final List<String> _editOptions = ["Add", "Delete"];
 
   @override
   void initState() {
@@ -29,8 +31,9 @@ class _PlacementsPageState extends State<PlacementsPage>
 
   @override
   void dispose() {
-    _tabController.removeListener(_handleTabChange);
-    _tabController.dispose();
+    _tabControllerView.removeListener(_handleViewTabChange);
+    _tabControllerEdit.dispose();
+    _tabControllerView.dispose();
     super.dispose();
   }
 
@@ -44,9 +47,11 @@ class _PlacementsPageState extends State<PlacementsPage>
         DBCreds.port,
       );
       await _fetchYears();
-      _tabController =
+      _tabControllerView =
           TabController(initialIndex: 0, length: _years.length, vsync: this);
-      _tabController.addListener(_handleTabChange);
+      _tabControllerView.addListener(_handleViewTabChange);
+      _tabControllerEdit =
+          TabController(initialIndex: 0, length: 4, vsync: this);
       if (_years.isNotEmpty) {
         await _fetchPlacements(_years[0]);
         await _fetchNamesAndCompany(_years[0]);
@@ -62,8 +67,8 @@ class _PlacementsPageState extends State<PlacementsPage>
     });
 
     try {
-      final completeYearTable =
-          await _dataConnection.fetchData('''SELECT * FROM "Year" ORDER BY "year" DESC''');
+      final completeYearTable = await _dataConnection
+          .fetchData('''SELECT * FROM "Year" ORDER BY "year" DESC''');
       List<String> tempYear = [];
       for (var i in completeYearTable) {
         tempYear.add(i[1]);
@@ -116,9 +121,9 @@ class _PlacementsPageState extends State<PlacementsPage>
     }
   }
 
-  void _handleTabChange() {
-    if (!_tabController.indexIsChanging) {
-      final selectedYear = _years[_tabController.index];
+  void _handleViewTabChange() {
+    if (!_tabControllerView.indexIsChanging) {
+      final selectedYear = _years[_tabControllerView.index];
       if (!_placementsByYear.containsKey(int.parse(selectedYear))) {
         _fetchPlacements(selectedYear).then((_) {
           _fetchNamesAndCompany(selectedYear);
@@ -126,6 +131,10 @@ class _PlacementsPageState extends State<PlacementsPage>
       }
     }
   }
+
+/*  void _handleEditTabChange() {
+
+  }*/
 
   void _handleError(String message) {
     setState(() {
@@ -149,10 +158,14 @@ class _PlacementsPageState extends State<PlacementsPage>
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.feedback_rounded))
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: _years.map((year) => Tab(text: year.toString())).toList(),
-        ),
+        bottom: currentPageIndex == 0
+            ? TabBar(
+                controller: _tabControllerView,
+                tabs: _years.map((year) => Tab(text: year.toString())).toList(),
+              )
+            : TabBar(
+                controller: _tabControllerEdit,
+                tabs: _editOptions.map((option) => Tab(text: option)).toList()),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,
@@ -174,16 +187,13 @@ class _PlacementsPageState extends State<PlacementsPage>
       ),
       body: <Widget>[
         TabBarView(
-          controller: _tabController,
+          controller: _tabControllerView,
           children: _years.map((year) => _buildBodyView(year)).toList(),
         ),
-        const Scaffold(
-          body: Column(mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-
-          ],
-          )
-        ),
+        TabBarView(
+            controller: _tabControllerEdit,
+            children:
+                _editOptions.map((option) => _buildBodyEdit(option)).toList())
       ][currentPageIndex],
     );
   }
@@ -213,12 +223,29 @@ class _PlacementsPageState extends State<PlacementsPage>
                   ),
                 ),
                 title: Text(_placementsByYear[int.parse(year)]![index][1][0]),
-                subtitle: Text(_placementsByYear[int.parse(year)]![index][1][0]),
+                subtitle:
+                    Text(_placementsByYear[int.parse(year)]![index][1][0]),
               ),
             );
           },
         ),
       );
+    }
+  }
+
+  Widget _buildBodyEdit(String option) {
+    if (option == "Add") {
+      return Scaffold(
+        body: Column(
+          children: [
+
+          ],
+        ),
+      );
+    } else if (option == "Delete") {
+      return Scaffold();
+    } else {
+      return const Text("Something went terribly wrong!");
     }
   }
 }

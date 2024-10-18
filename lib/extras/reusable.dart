@@ -93,3 +93,31 @@ fadeMeIn(Widget wid, double delay) {
     child: wid,
   );
 }
+
+Container uiButton(BuildContext context, String title, Function onTap) {
+  return Container(
+    width: 500,
+    height: 50,
+    margin: const EdgeInsets.fromLTRB(30, 10, 30, 20),
+    decoration: BoxDecoration(borderRadius: BorderRadius.circular(90)),
+    child: ElevatedButton(
+      onPressed: () {
+        onTap();
+      },
+      style: ButtonStyle(
+          backgroundColor: WidgetStateProperty.resolveWith((states) {
+            if (states.contains(WidgetState.pressed)) {
+              return Color.fromARGB(255, 214, 214, 214);
+            }
+            return Color.fromARGB(255, 212, 212, 212);
+          }),
+          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))),
+      child: Text(
+        title,
+        style: const TextStyle(
+            color: Colors.deepPurple, fontWeight: FontWeight.bold, fontSize: 16),
+      ),
+    ),
+  );
+}

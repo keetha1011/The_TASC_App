@@ -118,11 +118,12 @@ model Event {
   brief        String?
   image        String
   date         DateTime
+  endDate      DateTime?
   time         String?
   reportLink   String?
   venue        String?
   qr           String?
-  entryFee     Int?
+  entryFee     String?
   category     EventCategory
   minTeamSize  Int           @default(1)
   maxTeamSize  Int           @default(1)
@@ -131,7 +132,9 @@ model Event {
   winners      Winners[]
   organizers   User[]
   guests       String[]
+
   published    Boolean       @default(false)
+  registrationsAvailable Boolean @default(true)
 }
 
 model Links {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
+import 'package:tasc/screens/events.dart';
 import 'package:tasc/screens/login.dart';
 import 'package:tasc/screens/patents.dart';
 import 'package:tasc/screens/placements.dart';
@@ -31,13 +32,15 @@ class _HomeState extends State<Home> {
             shape: const CircleBorder()),
         children: [
           FloatingActionButton.small(
-              child: const Icon(Icons.clean_hands_rounded), onPressed: () {}),
+              child: const Icon(Icons.event), onPressed: () {
+                Navigator.push(context, MaterialPageRoute(builder: (context) => const EventsPage()));
+          }),
           FloatingActionButton.small(
               child: const Text("pat"),
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PatentsPage()),
+                  MaterialPageRoute(builder: (context) => const PatentsPage()),
                 );
               }),
           FloatingActionButton.small(
@@ -45,7 +48,7 @@ class _HomeState extends State<Home> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PublicationsPage()),
+                  MaterialPageRoute(builder: (context) => const PublicationsPage()),
                 );
               }),
           FloatingActionButton.small(
@@ -53,7 +56,7 @@ class _HomeState extends State<Home> {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => PlacementsPage()),
+                  MaterialPageRoute(builder: (context) => const PlacementsPage()),
                 );
               }),
           FloatingActionButton.small(
@@ -61,6 +64,8 @@ class _HomeState extends State<Home> {
         ],
       ),
       body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        const Center(child: Text("with great power comes great responsibilty", style: TextStyle(fontSize: 18),),),
+        const SizedBox(height: 8,),
         Center(
           child: ElevatedButton(
             onPressed: () {

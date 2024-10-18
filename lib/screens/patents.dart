@@ -1,6 +1,8 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tasc/dbms/dbmanager.dart';
 import 'package:tasc/dbms/dbcreds.dart';
+import 'package:tasc/extras/reusable.dart';
 
 class PatentsPage extends StatefulWidget {
   const PatentsPage({super.key});
@@ -16,8 +18,25 @@ class _PatentsPageState extends State<PatentsPage>
   final Map<int, List<List<dynamic>>> _patentsByYear = {};
   bool _isLoading = true;
   String? _errorMessage;
-  late TabController _tabController;
+  late TabController _tabControllerView;
+  late TabController _tabControllerEdit;
   List<String> _years = [];
+  List<List<dynamic>> _patentsInDelete = [];
+  final List<String> _editOptions = ["Add", "Delete"];
+  final TextEditingController _titleTextController = TextEditingController();
+  final TextEditingController _patentIdTextController = TextEditingController();
+  final TextEditingController _yearTextController = TextEditingController();
+  final TextEditingController _authorsTextController = TextEditingController();
+  final TextEditingController _inventorsNameTextController =
+      TextEditingController();
+  final TextEditingController _inventorsAddressTextController =
+      TextEditingController();
+  final TextEditingController _certificateTextController =
+      TextEditingController();
+  final TextEditingController _studentTextController =
+      TextEditingController();
+  final TextEditingController _facultyTextController =
+      TextEditingController();
 
   @override
   void initState() {
@@ -28,11 +47,12 @@ class _PatentsPageState extends State<PatentsPage>
 
   @override
   void dispose() {
-    _tabController.removeListener(_handleTabChange);
-    _tabController.dispose();
+    _tabControllerView.removeListener(_handleTabChange);
+    _tabControllerEdit.dispose();
+    _tabControllerView.dispose();
     super.dispose();
   }
-  
+
   Future<void> _initializeConnection() async {
     try {
       await _dataConnection.openConnection(
@@ -43,12 +63,15 @@ class _PatentsPageState extends State<PatentsPage>
         DBCreds.port,
       );
       await _fetchYears();
-      _tabController =
+      _tabControllerView =
           TabController(initialIndex: 0, length: _years.length, vsync: this);
-      _tabController.addListener(_handleTabChange);
-      if(_years.isNotEmpty) {
+      _tabControllerView.addListener(_handleTabChange);
+      _tabControllerEdit = TabController(
+          initialIndex: 0, length: _editOptions.length, vsync: this);
+      if (_years.isNotEmpty) {
         await _fetchPatents(_years[0]);
       }
+      deletionView();
     } catch (e) {
       _handleError("Error initializing the connection: $e");
     }
@@ -60,8 +83,8 @@ class _PatentsPageState extends State<PatentsPage>
     });
 
     try {
-      final completeYearTable =
-      await _dataConnection.fetchData('''SELECT year FROM "Patents" ORDER BY "year" DESC ''');
+      final completeYearTable = await _dataConnection
+          .fetchData('''SELECT year FROM "Patents" ORDER BY "year" DESC ''');
       List<String> tempYear = [];
       for (var i in completeYearTable) {
         tempYear.add(i[0]);
@@ -92,10 +115,10 @@ class _PatentsPageState extends State<PatentsPage>
   }
 
   void _handleTabChange() {
-    if (!_tabController.indexIsChanging) {
-      final selectedYear = _years[_tabController.index];
+    if (!_tabControllerView.indexIsChanging) {
+      final selectedYear = _years[_tabControllerView.index];
       if (!_patentsByYear.containsKey(int.parse(selectedYear))) {
-          _fetchPatents(selectedYear);
+        _fetchPatents(selectedYear);
       }
     }
   }
@@ -105,6 +128,22 @@ class _PatentsPageState extends State<PatentsPage>
       _errorMessage = message;
       _isLoading = false;
     });
+  }
+
+  Future<void> uploadPatent() async {
+    final uploadResult = await _dataConnection.fetchData('''
+          
+        ''');
+  }
+
+  Future<void> deletionView() async {
+     _patentsInDelete = await _dataConnection.fetchData('''
+      SELECT * FROM "Patents"
+    ''');
+
+    if (kDebugMode) {
+      print(_patentsInDelete);
+    }
   }
 
   @override
@@ -121,10 +160,18 @@ class _PatentsPageState extends State<PatentsPage>
         actions: [
           IconButton(onPressed: () {}, icon: const Icon(Icons.feedback_rounded))
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: _years.map((year) => Tab(text: year.toString())).toList(),
-        ),
+        bottom: currentPageIndex == 0
+            ? TabBar(
+                controller: _tabControllerView,
+                tabs: _years.map((year) => Tab(text: year.toString())).toList(),
+              )
+            : TabBar(
+                controller: _tabControllerEdit,
+                tabs: _editOptions
+                    .map((option) => Tab(
+                          text: option,
+                        ))
+                    .toList()),
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,
@@ -146,17 +193,14 @@ class _PatentsPageState extends State<PatentsPage>
       ),
       body: <Widget>[
         TabBarView(
-          controller: _tabController,
-          children: _years.map((year) => _buildBodyView(int.parse(year))).toList(),
+          controller: _tabControllerView,
+          children:
+              _years.map((year) => _buildBodyView(int.parse(year))).toList(),
         ),
-        const Scaffold(
-          body: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-
-            ],
-          ),
-        )
+        TabBarView(
+            controller: _tabControllerEdit,
+            children:
+                _editOptions.map((option) => _buildBodyEdit(option)).toList())
       ][currentPageIndex],
     );
   }
@@ -187,6 +231,100 @@ class _PatentsPageState extends State<PatentsPage>
                 ),
                 title: Text(_patentsByYear[year]![index][3]),
                 subtitle: Text(_patentsByYear[year]![index][2]),
+              ),
+            );
+          },
+        ),
+      );
+    }
+  }
+
+  Widget _buildBodyEdit(String option) {
+    if (option == "Add") {
+      return Scaffold(
+        backgroundColor: Colors.deepPurple.withOpacity(0.8),
+        body: ListView(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                  "Title", Icons.title, false, _titleTextController),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField("Patent ID", Icons.insert_drive_file,
+                  false, _patentIdTextController),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                  "Year", Icons.numbers, false, _yearTextController),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                  "Authors", Icons.person, false, _authorsTextController),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField("Inventors Name", Icons.person, false,
+                  _inventorsNameTextController),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                  "Inventors Address",
+                  Icons.location_on_outlined,
+                  false,
+                  _inventorsAddressTextController),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                  "Certificate",
+                  Icons.card_membership_outlined,
+                  false,
+                  _certificateTextController),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                  "Student",
+                  Icons.card_membership_outlined,
+                  false,
+                  _studentTextController),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                  "Faculty",
+                  Icons.card_membership_outlined,
+                  false,
+                  _facultyTextController),
+            ),
+            Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: uiButton(context, "ADD", uploadPatent)),
+          ],
+        ),
+      );
+    } else {
+      return Scaffold(
+        body: ListView.builder(
+          itemCount: _patentsInDelete.length,
+          itemBuilder: (context, index) {
+            return Card(
+              child: ListTile(
+                leading: ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
+                  child: Image.network(
+                    "https://firebasestorage.googleapis.com/v0/b/tasc-app-ae1ac.appspot.com/o/certificates%2F2024%2FEANF.png?alt=media",
+                    fit: BoxFit.cover,
+                    height: 100,
+                  ),
+                ),
+                title: Text(_patentsInDelete[index][2].toString()),
+                subtitle: Text(_patentsInDelete[index][3].toString()),
               ),
             );
           },
