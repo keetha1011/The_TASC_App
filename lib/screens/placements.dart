@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:tasc/dbms/dbmanager.dart';
 import 'package:tasc/dbms/dbcreds.dart';
 
+import 'feedback.dart';
+
 class PlacementsPage extends StatefulWidget {
   const PlacementsPage({super.key});
 
@@ -156,8 +158,17 @@ class _PlacementsPageState extends State<PlacementsPage>
         centerTitle: true,
         title: const Text("Placements"),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.feedback_rounded))
-        ],
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FeedbackPage(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.feedback_rounded),
+          ),        ],
         bottom: currentPageIndex == 0
             ? TabBar(
                 controller: _tabControllerView,
@@ -235,7 +246,7 @@ class _PlacementsPageState extends State<PlacementsPage>
 
   Widget _buildBodyEdit(String option) {
     if (option == "Add") {
-      return Scaffold(
+      return const Scaffold(
         body: Column(
           children: [
 

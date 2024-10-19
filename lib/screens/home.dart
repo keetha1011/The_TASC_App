@@ -64,7 +64,7 @@ class _HomeState extends State<Home> {
         ],
       ),
       body: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-        const Center(child: Text("with great power comes great responsibilty", style: TextStyle(fontSize: 18),),),
+        const Center(child: Text("with great power comes great responsibility", style: TextStyle(fontSize: 18),),),
         const SizedBox(height: 8,),
         Center(
           child: ElevatedButton(

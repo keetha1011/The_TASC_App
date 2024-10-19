@@ -1,8 +1,10 @@
+import 'package:cuid2/cuid2.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tasc/dbms/dbmanager.dart';
 import 'package:tasc/dbms/dbcreds.dart';
 import 'package:tasc/extras/reusable.dart';
+import 'package:tasc/screens/feedback.dart';
 
 class PatentsPage extends StatefulWidget {
   const PatentsPage({super.key});
@@ -13,16 +15,17 @@ class PatentsPage extends StatefulWidget {
 
 class _PatentsPageState extends State<PatentsPage>
     with TickerProviderStateMixin {
-  int currentPageIndex = 0;
-  late final DataConnection _dataConnection;
-  final Map<int, List<List<dynamic>>> _patentsByYear = {};
-  bool _isLoading = true;
-  String? _errorMessage;
   late TabController _tabControllerView;
   late TabController _tabControllerEdit;
+  late final DataConnection _dataConnection;
+  bool _isLoading = true;
+  int currentPageIndex = 0;
+  final List<String> _editOptions = ["Add", "Delete"];
+  final Map<int, List<List<dynamic>>> _patentsByYear = {};
   List<String> _years = [];
   List<List<dynamic>> _patentsInDelete = [];
-  final List<String> _editOptions = ["Add", "Delete"];
+  String? _errorMessage;
+
   final TextEditingController _titleTextController = TextEditingController();
   final TextEditingController _patentIdTextController = TextEditingController();
   final TextEditingController _yearTextController = TextEditingController();
@@ -33,10 +36,8 @@ class _PatentsPageState extends State<PatentsPage>
       TextEditingController();
   final TextEditingController _certificateTextController =
       TextEditingController();
-  final TextEditingController _studentTextController =
-      TextEditingController();
-  final TextEditingController _facultyTextController =
-      TextEditingController();
+  final TextEditingController _studentTextController = TextEditingController();
+  final TextEditingController _facultyTextController = TextEditingController();
 
   @override
   void initState() {
@@ -62,16 +63,7 @@ class _PatentsPageState extends State<PatentsPage>
         DBCreds.password,
         DBCreds.port,
       );
-      await _fetchYears();
-      _tabControllerView =
-          TabController(initialIndex: 0, length: _years.length, vsync: this);
-      _tabControllerView.addListener(_handleTabChange);
-      _tabControllerEdit = TabController(
-          initialIndex: 0, length: _editOptions.length, vsync: this);
-      if (_years.isNotEmpty) {
-        await _fetchPatents(_years[0]);
-      }
-      deletionView();
+      await _refreshData();
     } catch (e) {
       _handleError("Error initializing the connection: $e");
     }
@@ -83,14 +75,15 @@ class _PatentsPageState extends State<PatentsPage>
     });
 
     try {
-      final completeYearTable = await _dataConnection
-          .fetchData('''SELECT year FROM "Patents" ORDER BY "year" DESC ''');
+      final completeYearTable = await _dataConnection.fetchData(
+          '''SELECT DISTINCT year FROM "Patents" ORDER BY "year" DESC ''');
       List<String> tempYear = [];
       for (var i in completeYearTable) {
         tempYear.add(i[0]);
       }
       setState(() {
         _years = tempYear;
+        _isLoading = false;
       });
     } catch (e) {
       _handleError('_fetchYears(): $e');
@@ -107,10 +100,23 @@ class _PatentsPageState extends State<PatentsPage>
           .fetchData('''SELECT * FROM "Patents" WHERE year='$year' ''');
       setState(() {
         _patentsByYear[int.parse(year)] = placements;
-        _isLoading = false;
+        // _isLoading = false;
       });
     } catch (e) {
       _handleError('Error fetching patents for year $year: $e');
+    }
+  }
+
+  Future<void> _fetchPatentsForDeletion() async {
+    try {
+      final patents = await _dataConnection.fetchData('''
+        SELECT * FROM "Patents"
+      ''');
+      setState(() {
+        _patentsInDelete = patents;
+      });
+    } catch (e) {
+      _handleError('Error fetching patents for deletion: $e');
     }
   }
 
@@ -131,24 +137,120 @@ class _PatentsPageState extends State<PatentsPage>
   }
 
   Future<void> uploadPatent() async {
-    final uploadResult = await _dataConnection.fetchData('''
-          
+    if (_titleTextController.text != "" &&
+        _patentIdTextController.text != "" &&
+        _yearTextController.text != "") {
+      try {
+        await _dataConnection.fetchData('''
+      INSERT INTO "Patents" (title, year, id, "patentId") 
+      VALUES ('${_titleTextController.text}', '${_yearTextController.text}', '${cuid(25)}', '${_patentIdTextController.text}')
         ''');
+
+        _titleTextController.clear();
+        _yearTextController.clear();
+        _patentIdTextController.clear();
+        _authorsTextController.clear();
+        _inventorsNameTextController.clear();
+        _inventorsAddressTextController.clear();
+        _certificateTextController.clear();
+        _studentTextController.clear();
+        _facultyTextController.clear();
+
+        await _refreshData();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Patent added successfully',
+              ),
+            ),
+          );
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print(e);
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Error adding patent: $e',
+              ),
+            ),
+          );
+        }
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              'Something is incomplete in the input data!',
+            ),
+          ),
+        );
+      }
+    }
   }
 
-  Future<void> deletionView() async {
-     _patentsInDelete = await _dataConnection.fetchData('''
-      SELECT * FROM "Patents"
-    ''');
+  Future<void> deletePatent(String patent) async {
+    try {
+      await _dataConnection
+          .fetchData('''DELETE FROM "Patents" WHERE title='$patent' ''');
 
-    if (kDebugMode) {
-      print(_patentsInDelete);
+      await _refreshData();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '$patent was deleted',
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error deleting patent: $e',
+            ),
+          ),
+        );
+      }
     }
+  }
+
+  Future<void> _refreshData() async {
+    _isLoading = true;
+    await _fetchYears();
+    if (_years.isNotEmpty) {
+      await _fetchPatents(_years[0]);
+    }
+    await _fetchPatentsForDeletion();
+    _updateTabControllers();
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  void _updateTabControllers() {
+    if (_years.isNotEmpty) {
+      _tabControllerView =
+          TabController(initialIndex: 0, length: _years.length, vsync: this);
+      _tabControllerView.addListener(_handleTabChange);
+    }
+    _tabControllerEdit = TabController(
+        initialIndex: 0, length: _editOptions.length, vsync: this);
   }
 
   @override
   Widget build(BuildContext context) {
-    if (_years.isEmpty) {
+    if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
@@ -158,20 +260,39 @@ class _PatentsPageState extends State<PatentsPage>
         centerTitle: true,
         title: const Text("Patents"),
         actions: [
-          IconButton(onPressed: () {}, icon: const Icon(Icons.feedback_rounded))
+          IconButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FeedbackPage(),
+                ),
+              );
+            },
+            icon: const Icon(Icons.feedback_rounded),
+          ),
         ],
-        bottom: currentPageIndex == 0
+        bottom: currentPageIndex == 0 && _years.isNotEmpty
             ? TabBar(
+                tabAlignment: TabAlignment.center,
+                isScrollable: true,
+                splashBorderRadius: BorderRadius.circular(16),
+                dividerColor: Colors.transparent,
                 controller: _tabControllerView,
                 tabs: _years.map((year) => Tab(text: year.toString())).toList(),
               )
-            : TabBar(
-                controller: _tabControllerEdit,
-                tabs: _editOptions
-                    .map((option) => Tab(
-                          text: option,
-                        ))
-                    .toList()),
+            : currentPageIndex == 1
+                ? TabBar(
+                    tabAlignment: TabAlignment.center,
+                    splashBorderRadius: BorderRadius.circular(16),
+                    dividerColor: Colors.transparent,
+                    controller: _tabControllerEdit,
+                    tabs: _editOptions
+                        .map((option) => Tab(
+                              text: option,
+                            ))
+                        .toList())
+                : null,
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,
@@ -191,49 +312,73 @@ class _PatentsPageState extends State<PatentsPage>
               label: "Edit")
         ],
       ),
-      body: <Widget>[
-        TabBarView(
-          controller: _tabControllerView,
-          children:
-              _years.map((year) => _buildBodyView(int.parse(year))).toList(),
-        ),
-        TabBarView(
-            controller: _tabControllerEdit,
-            children:
-                _editOptions.map((option) => _buildBodyEdit(option)).toList())
-      ][currentPageIndex],
+      body: _buildBody(),
     );
   }
 
+  Widget _buildBody() {
+    if (currentPageIndex == 0) {
+      if (_years.isEmpty) {
+        return const Center(
+          child: Text(
+            "No patents found",
+          ),
+        );
+      } else {
+        return TabBarView(
+          controller: _tabControllerView,
+          children:
+              _years.map((year) => _buildBodyView(int.parse(year))).toList(),
+        );
+      }
+    } else {
+      return TabBarView(
+        controller: _tabControllerEdit,
+        children: _editOptions.map((option) => _buildBodyEdit(option)).toList(),
+      );
+    }
+  }
+
   Widget _buildBodyView(int year) {
-    if (_isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    } else if (_errorMessage != null) {
-      return Center(child: Text("Fatal Error\n\n$_errorMessage"));
+    if (_errorMessage != null) {
+      return Center(
+        child: Text("Fatal Error\n\n$_errorMessage"),
+      );
     } else if (!_patentsByYear.containsKey(year) ||
         _patentsByYear[year]!.isEmpty) {
-      return Center(child: Text("No Patents for $year"));
+      return Center(
+        child: Text("No Patents for $year"),
+      );
     } else {
-      return Padding(
-        padding: const EdgeInsets.all(8),
-        child: ListView.builder(
-          itemCount: _patentsByYear[year]!.length,
-          itemBuilder: (context, index) {
-            return Card(
-              child: ListTile(
-                leading: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                  child: Image.network(
-                    "https://firebasestorage.googleapis.com/v0/b/tasc-app-ae1ac.appspot.com/o/certificates%2F2024%2FEANF.png?alt=media",
-                    fit: BoxFit.cover,
-                    height: 100,
+      return RefreshIndicator(
+        onRefresh: _refreshData,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: ListView.builder(
+            itemCount: _patentsByYear[year]!.length,
+            itemBuilder: (context, index) {
+              return Card(
+                child: ListTile(
+                  leading: ClipRRect(
+                    borderRadius: const BorderRadius.all(
+                      Radius.circular(8.0),
+                    ),
+                    child: Image.network(
+                      "https://firebasestorage.googleapis.com/v0/b/tasc-app-ae1ac.appspot.com/o/certificates%2F2024%2FEANF.png?alt=media",
+                      fit: BoxFit.cover,
+                      height: 100,
+                    ),
+                  ),
+                  title: Text(
+                    _patentsByYear[year]![index][3],
+                  ),
+                  subtitle: Text(
+                    _patentsByYear[year]![index][2],
                   ),
                 ),
-                title: Text(_patentsByYear[year]![index][3]),
-                subtitle: Text(_patentsByYear[year]![index][2]),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
       );
     }
@@ -242,7 +387,13 @@ class _PatentsPageState extends State<PatentsPage>
   Widget _buildBodyEdit(String option) {
     if (option == "Add") {
       return Scaffold(
-        backgroundColor: Colors.deepPurple.withOpacity(0.8),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            uploadPatent();
+          },
+          child: const Icon(Icons.add),
+        ),
         body: ListView(
           children: [
             Padding(
@@ -252,83 +403,123 @@ class _PatentsPageState extends State<PatentsPage>
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: reusableTextField("Patent ID", Icons.insert_drive_file,
-                  false, _patentIdTextController),
+              child: reusableTextField(
+                "Patent ID",
+                Icons.insert_drive_file,
+                false,
+                _patentIdTextController,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
-                  "Year", Icons.numbers, false, _yearTextController),
+                "Year",
+                Icons.numbers,
+                false,
+                _yearTextController,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
-                  "Authors", Icons.person, false, _authorsTextController),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: reusableTextField("Inventors Name", Icons.person, false,
-                  _inventorsNameTextController),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: reusableTextField(
-                  "Inventors Address",
-                  Icons.location_on_outlined,
-                  false,
-                  _inventorsAddressTextController),
+                "Authors",
+                Icons.person,
+                false,
+                _authorsTextController,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
-                  "Certificate",
-                  Icons.card_membership_outlined,
-                  false,
-                  _certificateTextController),
+                "Inventors Name",
+                Icons.person,
+                false,
+                _inventorsNameTextController,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
-                  "Student",
-                  Icons.card_membership_outlined,
-                  false,
-                  _studentTextController),
+                "Inventors Address",
+                Icons.location_on_outlined,
+                false,
+                _inventorsAddressTextController,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
-                  "Faculty",
-                  Icons.card_membership_outlined,
-                  false,
-                  _facultyTextController),
+                "Certificate",
+                Icons.card_membership_outlined,
+                false,
+                _certificateTextController,
+              ),
             ),
             Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: uiButton(context, "ADD", uploadPatent)),
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                "Student",
+                Icons.card_membership_outlined,
+                false,
+                _studentTextController,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                "Faculty",
+                Icons.card_membership_outlined,
+                false,
+                _facultyTextController,
+              ),
+            ),
+            // ),
           ],
         ),
       );
     } else {
-      return Scaffold(
-        body: ListView.builder(
-          itemCount: _patentsInDelete.length,
-          itemBuilder: (context, index) {
-            return Card(
-              child: ListTile(
-                leading: ClipRRect(
-                  borderRadius: const BorderRadius.all(Radius.circular(8.0)),
-                  child: Image.network(
-                    "https://firebasestorage.googleapis.com/v0/b/tasc-app-ae1ac.appspot.com/o/certificates%2F2024%2FEANF.png?alt=media",
-                    fit: BoxFit.cover,
-                    height: 100,
-                  ),
-                ),
-                title: Text(_patentsInDelete[index][2].toString()),
-                subtitle: Text(_patentsInDelete[index][3].toString()),
+      return RefreshIndicator(
+        onRefresh: _refreshData,
+        child: _patentsInDelete.isEmpty
+            ? const Center(
+                child: Text("No patents to delete"),
+              )
+            : ListView.builder(
+                itemCount: _patentsInDelete.length,
+                itemBuilder: (context, index) {
+                  return Card(
+                    child: ListTile(
+                      leading: ClipRRect(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(8.0),
+                        ),
+                        child: Image.network(
+                          "https://firebasestorage.googleapis.com/v0/b/tasc-app-ae1ac.appspot.com/o/certificates%2F2024%2FEANF.png?alt=media",
+                          fit: BoxFit.cover,
+                          height: 100,
+                        ),
+                      ),
+                      title: Text(
+                        _patentsInDelete[index][3].toString(),
+                      ),
+                      subtitle: Text(
+                        _patentsInDelete[index][2].toString(),
+                      ),
+                      trailing: IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.deepPurple,
+                        ),
+                        onPressed: () async {
+                          await deletePatent(
+                            _patentsInDelete[index][3].toString(),
+                          );
+                        },
+                      ),
+                    ),
+                  );
+                },
               ),
-            );
-          },
-        ),
       );
     }
   }

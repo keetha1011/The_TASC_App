@@ -1,10 +1,11 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:mesh_gradient/mesh_gradient.dart';
 import 'package:tasc/extras/reusable.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:vibration/vibration.dart';
 import 'dart:math';
 
 import 'home.dart';
@@ -25,15 +26,19 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _controller =
-        AnimationController(vsync: this, duration: const Duration(seconds: 5));
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 5),
+    );
 
-    _transparencyAnimation = TweenSequence<double>([
-      TweenSequenceItem<double>(
-          tween: Tween<double>(begin: 0.4, end: 0.5), weight: 1),
-      TweenSequenceItem<double>(
-          tween: Tween<double>(begin: 0.5, end: 0.4), weight: 1),
-    ]).animate(
+    _transparencyAnimation = TweenSequence<double>(
+      [
+        TweenSequenceItem<double>(
+            tween: Tween<double>(begin: 0.4, end: 0.5), weight: 1),
+        TweenSequenceItem<double>(
+            tween: Tween<double>(begin: 0.5, end: 0.4), weight: 1),
+      ],
+    ).animate(
       CurvedAnimation(
         parent: _controller,
         curve: Curves.easeInOut,
@@ -161,99 +166,117 @@ class _LoginState extends State<Login> with TickerProviderStateMixin {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-        resizeToAvoidBottomInset: false,
-        body: AnimatedBuilder(
-            animation: _controller,
-            builder: (context, _) {
-              return Stack(children: [
-                Positioned(
-                  width: max(screenHeight, screenWidth),
-                  height: max(screenHeight, screenWidth),
-                  child: MeshGradient(
-                    controller: _meshController,
-                    options: MeshGradientOptions(
-                      blend: 5,
-                      noiseIntensity: 1,
-                    ),
+      resizeToAvoidBottomInset: false,
+      body: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, _) {
+          return Stack(
+            children: [
+              Positioned(
+                width: max(screenHeight, screenWidth),
+                height: max(screenHeight, screenWidth),
+                child: MeshGradient(
+                  controller: _meshController,
+                  options: MeshGradientOptions(
+                    blend: 5,
+                    noiseIntensity: 1,
                   ),
                 ),
-                GestureDetector(
-                  onLongPress: () {
-                    Vibration.vibrate(duration: 100);
-                    try {
-                      signInWithGoogle().then((userCredential) {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => const Home()),
-                        );
-                      });
-                    } catch (e) {}
-                  },
-                  child: Transform.scale(
-                    scaleX: 2.8,
-                    scaleY: 2.8,
-                    origin: const Offset(0, 67),
-                    child: Container(
-                      width: screenWidth,
-                      height: screenHeight,
-                      decoration: BoxDecoration(
-                        gradient: RadialGradient(colors: [
+              ),
+              GestureDetector(
+                onLongPress: () {
+                  HapticFeedback.vibrate();
+                  try {
+                    signInWithGoogle().then((userCredential) {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Home(),
+                        ),
+                      );
+                    });
+                  } catch (e) {
+                    if (kDebugMode) {
+                      print(e);
+                    }
+                  }
+                },
+                child: Transform.scale(
+                  scaleX: 2.8,
+                  scaleY: 2.8,
+                  origin: const Offset(0, 67),
+                  child: Container(
+                    width: screenWidth,
+                    height: screenHeight,
+                    decoration: BoxDecoration(
+                      gradient: RadialGradient(
+                        colors: [
                           toColor("060110", opacity: 0.0),
                           toColor("060110", opacity: 0.8),
-                        ], stops: const [
+                        ],
+                        stops: const [
                           0.5,
                           1,
-                        ]),
+                        ],
                       ),
                     ),
                   ),
                 ),
-                Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 30, 20, 30),
-                    child: Column(children: <Widget>[
-                      Padding(
-                          padding: EdgeInsets.fromLTRB(
-                              0, screenHeight / 2 - 160, 0, 0),
-                          child: fadeMeIn(
-                              bannerWidget(
-                                  "assets/Logo/TASC.png", 817 / 4, 253 / 4),
-                              0)),
-                      Align(
-                        alignment: Alignment.topCenter,
-                        child: fadeMeIn(
-                            Text(
-                              "DEPARTMENT OF AIML",
-                              textAlign: TextAlign.center,
-                              style: GoogleFonts.encodeSansCondensed(
-                                  fontSize: 14,
-                                  color: Light.withOpacity(0.8),
-                                  fontWeight: FontWeight.w800),
-                            ),
-                            200),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 30, 20, 30),
+                child: Column(
+                  children: <Widget>[
+                    Padding(
+                      padding:
+                          EdgeInsets.fromLTRB(0, screenHeight / 2 - 160, 0, 0),
+                      child: fadeMeIn(
+                        bannerWidget("assets/Logo/TASC.png", 817 / 4, 253 / 4),
+                        0,
                       ),
-                    ])),
-                Padding(
-                  padding: EdgeInsets.fromLTRB(
-                      0,
-                      screenHeight - 10 - _transparencyAnimation.value * 100,
-                      0,
-                      0),
-                  child: Align(
-                    alignment: Alignment.topCenter,
-                    child: fadeMeIn(
+                    ),
+                    Align(
+                      alignment: Alignment.topCenter,
+                      child: fadeMeIn(
                         Text(
-                          "Long Press To Login",
+                          "DEPARTMENT OF AIML",
                           textAlign: TextAlign.center,
                           style: GoogleFonts.encodeSansCondensed(
                               fontSize: 14,
-                              color: Light.withOpacity(1),
+                              color: light.withOpacity(0.8),
                               fontWeight: FontWeight.w800),
                         ),
-                        400),
-                  ),
+                        200,
+                      ),
+                    ),
+                  ],
                 ),
-              ]);
-            }));
+              ),
+              Padding(
+                padding: EdgeInsets.fromLTRB(
+                    0,
+                    screenHeight - 10 - _transparencyAnimation.value * 100,
+                    0,
+                    0),
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: fadeMeIn(
+                      Text(
+                        "Long Press To Login",
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.encodeSansCondensed(
+                            fontSize: 14,
+                            color: light.withOpacity(1),
+                            fontWeight: FontWeight.w800),
+                      ),
+                      400),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }
 

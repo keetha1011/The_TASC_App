@@ -37,7 +37,14 @@ class MainApp extends StatelessWidget {
           primarySwatch: Colors.indigo,
           fontFamily: GoogleFonts.josefinSans().fontFamily,
         ),
-        home: AuthenticationWrapper());
+        darkTheme: ThemeData(
+          useMaterial3: true,
+          primarySwatch: Colors.indigo,
+          fontFamily: GoogleFonts.josefinSans().fontFamily,
+          primaryColorDark: Colors.indigo,
+        ),
+        themeMode: ThemeMode.light,
+        home: const AuthenticationWrapper());
   }
 }
 
@@ -73,9 +80,9 @@ class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
   }
 }
 
-class userData {
+class UserData {
   String name, email, type;
-  userData({
+  UserData({
     required this.name,
     required this.email,
     required this.type,

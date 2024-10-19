@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-Color Light = toColor("#e7e3ff");
-Color Dark = toColor("012367");
+Color light = toColor("#ffffff");
+// Color Dark = toColor("");
 
 toColor(String hexColor, {double opacity = 1}) {
   hexColor = hexColor.toUpperCase().replaceAll("#", "");
@@ -18,7 +18,7 @@ Image bannerWidget(String imageName, double x, double y) {
     fit: BoxFit.contain,
     width: x,
     height: y,
-    color: Light.withOpacity(0.9),
+    color: light.withOpacity(0.9),
   );
 }
 
@@ -29,28 +29,35 @@ TextField reusableTextField(String text, IconData icon, bool isPasswordType,
     obscureText: isPasswordType,
     enableSuggestions: !isPasswordType,
     autocorrect: !isPasswordType,
-    cursorColor: Light.withOpacity(0.9),
-    cursorWidth: 2,
+    cursorColor: Colors.deepPurple.withOpacity(0.9),
+    cursorWidth: 8,
     cursorHeight: 20,
-    style: TextStyle(color: Light.withOpacity(0.9)),
+    style: TextStyle(
+      color: Colors.black.withOpacity(0.9),
+    ),
     decoration: InputDecoration(
       prefixIcon: Icon(
         icon,
-        color: Light,
+        color: Colors.deepPurple,
       ),
       labelText: text,
-      labelStyle: TextStyle(
-          color: Light.withOpacity(0.6),
-          fontWeight: FontWeight.bold,
-          fontSize: 16),
+      labelStyle: const TextStyle(color: Colors.black87, fontSize: 16),
       filled: true,
-      fillColor: Light.withOpacity(0.05),
+      fillColor: Colors.deepPurple.withOpacity(0.05),
       enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-          borderSide: BorderSide(width: 2, color: Light.withAlpha(200))),
+        borderRadius: BorderRadius.circular(16.0),
+        borderSide: BorderSide(
+          width: 2,
+          color: Colors.black12.withOpacity(0.0),
+        ),
+      ),
       focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(5.0),
-          borderSide: BorderSide(width: 2, color: Light.withAlpha(255))),
+        borderRadius: BorderRadius.circular(16.0),
+        borderSide: BorderSide(
+          width: 2,
+          color: Colors.deepPurple.withAlpha(255),
+        ),
+      ),
     ),
     keyboardType: isPasswordType
         ? TextInputType.visiblePassword
@@ -58,7 +65,7 @@ TextField reusableTextField(String text, IconData icon, bool isPasswordType,
   );
 }
 
-Image ImageWidget(String imageName, double x, double y) {
+Image imageWidget(String imageName, double x, double y) {
   return Image.asset(
     imageName,
     fit: BoxFit.fitWidth,
@@ -105,18 +112,18 @@ Container uiButton(BuildContext context, String title, Function onTap) {
         onTap();
       },
       style: ButtonStyle(
-          backgroundColor: WidgetStateProperty.resolveWith((states) {
-            if (states.contains(WidgetState.pressed)) {
-              return Color.fromARGB(255, 214, 214, 214);
-            }
-            return Color.fromARGB(255, 212, 212, 212);
-          }),
-          shape: WidgetStateProperty.all<RoundedRectangleBorder>(
-              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)))),
+        shape: WidgetStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
       child: Text(
         title,
         style: const TextStyle(
-            color: Colors.deepPurple, fontWeight: FontWeight.bold, fontSize: 16),
+            color: Colors.deepPurple,
+            fontWeight: FontWeight.bold,
+            fontSize: 16),
       ),
     ),
   );
