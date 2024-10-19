@@ -1,13 +1,13 @@
-import "package:flutter/material.dart";
+import 'package:flutter/material.dart';
 
-class UsersPage extends StatefulWidget {
-  const UsersPage({super.key});
+class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
 
   @override
-  State<UsersPage> createState() => _UsersPageState();
+  State<ProfilePage> createState() => _ProfilePageState();
 }
 
-class _UsersPageState extends State<UsersPage> with SingleTickerProviderStateMixin {
+class _ProfilePageState extends State<ProfilePage> with SingleTickerProviderStateMixin {
   late AnimationController _controller;
 
   @override

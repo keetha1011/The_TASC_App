@@ -128,3 +128,22 @@ Container uiButton(BuildContext context, String title, Function onTap) {
     ),
   );
 }
+
+ListTile drawerListTiles(BuildContext context, String title,Widget page) {
+  return ListTile(
+    splashColor: Colors.deepPurple.withOpacity(0.2),
+    title: Text(
+      title,
+      style: const TextStyle(fontSize: 16),
+    ),
+    onTap: () {
+      Navigator.pop(context);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => page,
+        ),
+      );
+    },
+  );
+}

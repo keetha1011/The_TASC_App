@@ -452,6 +452,42 @@ class _PublicationsPageState extends State<PublicationsPage>
                 _facultyTextController,
               ),
             ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                "Faculty",
+                Icons.card_membership_outlined,
+                false,
+                _facultyTextController,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                "Faculty",
+                Icons.card_membership_outlined,
+                false,
+                _facultyTextController,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                "Faculty",
+                Icons.card_membership_outlined,
+                false,
+                _facultyTextController,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                "Faculty",
+                Icons.card_membership_outlined,
+                false,
+                _facultyTextController,
+              ),
+            ),
           ],
         ),
       );

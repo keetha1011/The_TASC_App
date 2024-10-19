@@ -37,15 +37,15 @@ class _FeedbackPageState extends State<FeedbackPage>
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 8.0),
               child: Text(
-                "WE LOVE TO HEAR FEEDBACKS!",
-                style: TextStyle(fontSize: 32),
+                "We LOVE to HEAR FEEDBACKS!",
+                style: TextStyle(fontSize: 24),
               ),
             ),
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
               child: Text(
                 "TASC Tech Team...",
-                style: TextStyle(fontSize: 20),
+                style: TextStyle(fontSize: 14),
               ),
             )
           ],
