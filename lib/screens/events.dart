@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tasc/dbms/dbmanager.dart';
 import 'package:tasc/dbms/dbcreds.dart';
+import 'package:tasc/extras/reusable.dart';
 import 'package:tasc/screens/feedback.dart';
 
 class EventsPage extends StatefulWidget {
@@ -70,6 +71,7 @@ class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [feedbackBeggar(context)],
           centerTitle: true,
           title: const Text("Events"),
           bottom: currentPageIndex == 0

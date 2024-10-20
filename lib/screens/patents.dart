@@ -260,17 +260,7 @@ class _PatentsPageState extends State<PatentsPage>
         centerTitle: true,
         title: const Text("Patents"),
         actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const FeedbackPage(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.feedback_rounded),
-          ),
+          feedbackBeggar(context)
         ],
         bottom: currentPageIndex == 0 && _years.isNotEmpty
             ? TabBar(
@@ -387,7 +377,7 @@ class _PatentsPageState extends State<PatentsPage>
   Widget _buildBodyEdit(String option) {
     if (option == "Add") {
       return Scaffold(
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             uploadPatent();

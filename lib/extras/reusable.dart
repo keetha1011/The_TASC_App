@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:tasc/screens/feedback.dart';
 
 Color light = toColor("#ffffff");
 // Color Dark = toColor("");
@@ -129,7 +130,7 @@ Container uiButton(BuildContext context, String title, Function onTap) {
   );
 }
 
-ListTile drawerListTiles(BuildContext context, String title,Widget page) {
+ListTile drawerListTiles(BuildContext context, String title, Widget page) {
   return ListTile(
     splashColor: Colors.deepPurple.withOpacity(0.2),
     title: Text(
@@ -145,5 +146,17 @@ ListTile drawerListTiles(BuildContext context, String title,Widget page) {
         ),
       );
     },
+  );
+}
+
+IconButton feedbackBeggar(BuildContext context) {
+  return IconButton(
+    onPressed: () {
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => const FeedbackPage()));
+    },
+    icon: const Icon(
+      Icons.feedback_rounded,
+    ),
   );
 }

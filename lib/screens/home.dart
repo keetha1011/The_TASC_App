@@ -5,6 +5,7 @@ import 'package:tasc/screens/feedback.dart';
 import 'package:tasc/screens/login.dart';
 import 'package:tasc/screens/patents.dart';
 import 'package:tasc/screens/placements.dart';
+import 'package:tasc/screens/profile.dart';
 import 'package:tasc/screens/publications.dart';
 import 'package:tasc/screens/users.dart';
 
@@ -21,12 +22,7 @@ class _HomeState extends State<Home> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          IconButton(
-              onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => FeedbackPage()));
-              },
-              icon: Icon(Icons.feedback))
+          feedbackBeggar(context)
         ],
         centerTitle: true,
         title: const Text("Home"),
@@ -78,14 +74,24 @@ class _HomeState extends State<Home> {
             drawerListTiles(context, "Users", const UsersPage()),
             // drawerListTiles(context, "Events", const EventsPage()),
             const SizedBox(
-              height: 10,
+              height: 20,
             ),
             // Container(
             //   height: 76,
             //   child: DecoratedBox(decoration: BoxDecoration(color: Colors.black)),
             // )
             ListTile(
-              title: Text("SignOut"),
+              title: const Text("Profile"),
+              textColor: Colors.deepPurple.shade300,
+              onTap: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ProfilePage()));
+              },
+            ),
+            ListTile(
+              title: const Text("SignOut"),
               textColor: Colors.red.shade300,
               onTap: () {
                 signOut(context);
@@ -96,10 +102,13 @@ class _HomeState extends State<Home> {
       ),
       body: DecoratedBox(
         decoration: BoxDecoration(
-          gradient: RadialGradient(colors: [
-            Colors.deepPurple.shade100,
-            Colors.deepPurple.shade50.withOpacity(0.01)
-          ], center: Alignment.bottomCenter),
+          gradient: RadialGradient(
+            colors: [
+              Colors.deepPurple.shade100,
+              Colors.deepPurple.shade50.withOpacity(0.01)
+            ],
+            center: Alignment.bottomCenter,
+          ),
         ),
         child: const Column(
           mainAxisAlignment: MainAxisAlignment.center,

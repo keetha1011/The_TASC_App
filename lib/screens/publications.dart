@@ -365,7 +365,7 @@ class _PublicationsPageState extends State<PublicationsPage>
   Widget _buildBodyEdit(String option) {
     if (option == "Add") {
       return Scaffold(
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             uploadPublication();

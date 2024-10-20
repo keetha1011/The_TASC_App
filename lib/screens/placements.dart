@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:tasc/dbms/dbmanager.dart';
 import 'package:tasc/dbms/dbcreds.dart';
+import 'package:tasc/extras/reusable.dart';
 
 import 'feedback.dart';
 
@@ -155,29 +156,29 @@ class _PlacementsPageState extends State<PlacementsPage>
 
     return Scaffold(
       appBar: AppBar(
-        centerTitle: true,
-        title: const Text("Placements"),
-        actions: [
-          IconButton(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const FeedbackPage(),
-                ),
-              );
-            },
-            icon: const Icon(Icons.feedback_rounded),
-          ),        ],
-        bottom: currentPageIndex == 0
-            ? TabBar(
-                controller: _tabControllerView,
-                tabs: _years.map((year) => Tab(text: year.toString())).toList(),
-              )
-            : TabBar(
-                controller: _tabControllerEdit,
-                tabs: _editOptions.map((option) => Tab(text: option)).toList()),
-      ),
+          centerTitle: true,
+          title: const Text("Placements"),
+          actions: [feedbackBeggar(context)],
+          bottom: currentPageIndex == 0
+              ? TabBar(
+                  tabAlignment: TabAlignment.center,
+                  isScrollable: true,
+                  splashBorderRadius: BorderRadius.circular(16),
+                  dividerColor: Colors.transparent,
+                  controller: _tabControllerView,
+                  tabs:
+                      _years.map((year) => Tab(text: year.toString())).toList(),
+                )
+              : TabBar(
+                  tabAlignment: TabAlignment.center,
+                  splashBorderRadius: BorderRadius.circular(16),
+                  dividerColor: Colors.transparent,
+                  controller: _tabControllerEdit,
+                  tabs: _editOptions
+                      .map((option) => Tab(
+                            text: option,
+                          ))
+                      .toList())),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,
         onDestinationSelected: (int index) {
@@ -248,13 +249,11 @@ class _PlacementsPageState extends State<PlacementsPage>
     if (option == "Add") {
       return const Scaffold(
         body: Column(
-          children: [
-
-          ],
+          children: [],
         ),
       );
     } else if (option == "Delete") {
-      return Scaffold();
+      return const Scaffold();
     } else {
       return const Text("Something went terribly wrong!");
     }

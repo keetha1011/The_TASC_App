@@ -303,21 +303,13 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_animate:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       name: flutter_animate
       sha256: "7c8a6594a9252dad30cc2ef16e33270b6248c4dedc3b3d06c86c4f3f4dc05ae5"
       url: "https://pub.dev"
     source: hosted
     version: "4.5.0"
-  flutter_expandable_fab:
-    dependency: "direct main"
-    description:
-      name: flutter_expandable_fab
-      sha256: "85275279d19faf4fbe5639dc1f139b4555b150e079d056f085601a45688af12c"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.3.0"
   flutter_launcher_icons:
     dependency: "direct main"
     description:
