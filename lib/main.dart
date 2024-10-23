@@ -7,18 +7,18 @@ import 'package:tasc/screens/home.dart';
 import 'package:tasc/screens/login.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:tasc/firebase_options.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+// import 'package:connectivity_plus/connectivity_plus.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  var connectivityResult = await Connectivity().checkConnectivity();
-  if (connectivityResult == ConnectivityResult.none) {
-    debugPrint("Connection Error");
-    const SnackBar(
-      content: Text("Connection Error, Try Again"),
-    );
-    return;
-  }
+  // var connectivityResult = await Connectivity().checkConnectivity();
+  // if (connectivityResult == ConnectivityResult.none) {
+  //   debugPrint("Connection Error");
+  //   const SnackBar(
+  //     content: Text("Connection Error, Try Again"),
+  //   );
+  //   return;
+  // }
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
