@@ -67,67 +67,58 @@ class _ProfilePageState extends State<ProfilePage>
         print(e);
       }
     }
+
+    setState(() {
+      profileDetails = profileDetails;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    print(profileDetails);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-          gradient: RadialGradient(
-              radius: 2,
-              colors: [
-                Colors.deepPurple.shade100,
-                Colors.deepPurple.shade50.withOpacity(0.2)
-              ],
-              center: Alignment.bottomLeft)),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-            backgroundBlendMode: BlendMode.multiply,
-            gradient: RadialGradient(
-                colors: [Colors.deepPurple.shade100, Colors.deepPurple.shade50],
-                center: Alignment.topRight)),
-        child: Scaffold(
-          appBar: AppBar(
-            centerTitle: true,
-            title: const Text("Profile"),
-            backgroundColor: Colors.transparent,
-            actions: [feedbackBeggar(context)],
-          ),
-          backgroundColor: Colors.transparent,
-          body: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: Center(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(16),
-                    child: Image.network(
-                      "${profileDetails[0][4]}",
-                      scale: 0.5,
+    bool themeMode = (MediaQuery.of(context).platformBrightness.name == "dark");
+    return Scaffold(
+      body: profileDetails.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : Scaffold(
+              appBar: AppBar(
+                centerTitle: true,
+                title: const Text("Profile"),
+                backgroundColor: Colors.transparent,
+                actions: [feedbackBeggar(context)],
+              ),
+              backgroundColor: Colors.transparent,
+              body: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 20.0),
+                    child: Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: Image.network(
+                          "${profileDetails[0][4]}",
+                          scale: 0.5,
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                child: Center(
-                  child: Text(
-                    profileDetails[0][5],
-                    style: const TextStyle(fontSize: 24),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: Center(
+                      child: Text(
+                        profileDetails[0][5],
+                        style: const TextStyle(fontSize: 32),
+                      ),
+                    ),
                   ),
-                ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 12.0),
+                    child: Center(
+                      child: Text(profileDetails[0][6]),
+                    ),
+                  ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 12.0),
-                child: Center(
-                  child: Text(profileDetails[0][6]),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }

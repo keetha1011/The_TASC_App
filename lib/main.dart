@@ -1,4 +1,3 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,13 +22,6 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  SystemChrome.setSystemUIOverlayStyle(const SystemUiOverlayStyle(
-    statusBarColor: Colors.transparent,
-    systemNavigationBarColor: Colors.transparent,
-    systemNavigationBarDividerColor: Colors.transparent,
-  ));
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-
   runApp(const MainApp());
 }
 
@@ -38,54 +30,25 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    User? user = FirebaseAuth.instance.currentUser;
+
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'TASC',
         theme: ThemeData(
           useMaterial3: true,
           primarySwatch: Colors.indigo,
-          fontFamily: GoogleFonts.josefinSans().fontFamily,
+          brightness: Brightness.light,
+          fontFamily: GoogleFonts.firaSansCondensed().fontFamily,
         ),
         darkTheme: ThemeData(
           useMaterial3: true,
           primarySwatch: Colors.indigo,
-          fontFamily: GoogleFonts.josefinSans().fontFamily,
-          primaryColorDark: Colors.indigo,
+          fontFamily: GoogleFonts.firaSansCondensed().fontFamily,
+          brightness: Brightness.dark,
         ),
-        themeMode: ThemeMode.light,
-        home: const AuthenticationWrapper());
-  }
-}
-
-class AuthenticationWrapper extends StatefulWidget {
-  const AuthenticationWrapper({super.key});
-
-  @override
-  _AuthenticationWrapperState createState() => _AuthenticationWrapperState();
-}
-
-class _AuthenticationWrapperState extends State<AuthenticationWrapper> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      checkUserAuthentication();
-    });
-  }
-
-  void checkUserAuthentication() async {
-    User? user = FirebaseAuth.instance.currentUser;
-    if (user != null) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const Home()),
-      );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return const Login();
+        themeMode: ThemeMode.system,
+        home: user != null ? const Home() : const Login());
   }
 }
 

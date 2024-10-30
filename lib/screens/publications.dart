@@ -377,8 +377,10 @@ class _PublicationsPageState extends State<PublicationsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Title",
                 Icons.title,
+                false,
                 false,
                 _titleTextController,
               ),
@@ -386,8 +388,10 @@ class _PublicationsPageState extends State<PublicationsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Publication ID",
                 Icons.insert_drive_file,
+                false,
                 false,
                 _patentIdTextController,
               ),
@@ -395,17 +399,21 @@ class _PublicationsPageState extends State<PublicationsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Year",
                 Icons.numbers,
                 false,
+                true,
                 _yearTextController,
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Authors",
                 Icons.person,
+                false,
                 false,
                 _authorsTextController,
               ),
@@ -413,8 +421,10 @@ class _PublicationsPageState extends State<PublicationsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Inventors Name",
                 Icons.person,
+                false,
                 false,
                 _inventorsNameTextController,
               ),
@@ -422,32 +432,40 @@ class _PublicationsPageState extends State<PublicationsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                  context,
                   "Inventors Address",
                   Icons.location_on_outlined,
+                  false,
                   false,
                   _inventorsAddressTextController),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                  context,
                   "Certificate",
                   Icons.card_membership_outlined,
+                  false,
                   false,
                   _certificateTextController),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                  context,
                   "Student",
                   Icons.card_membership_outlined,
+                  false,
                   false,
                   _studentTextController),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Faculty",
                 Icons.card_membership_outlined,
+                false,
                 false,
                 _facultyTextController,
               ),
@@ -455,8 +473,10 @@ class _PublicationsPageState extends State<PublicationsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Faculty",
                 Icons.card_membership_outlined,
+                false,
                 false,
                 _facultyTextController,
               ),
@@ -464,8 +484,10 @@ class _PublicationsPageState extends State<PublicationsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Faculty",
                 Icons.card_membership_outlined,
+                false,
                 false,
                 _facultyTextController,
               ),
@@ -473,8 +495,10 @@ class _PublicationsPageState extends State<PublicationsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Faculty",
                 Icons.card_membership_outlined,
+                false,
                 false,
                 _facultyTextController,
               ),
@@ -482,8 +506,10 @@ class _PublicationsPageState extends State<PublicationsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Faculty",
                 Icons.card_membership_outlined,
+                false,
                 false,
                 _facultyTextController,
               ),

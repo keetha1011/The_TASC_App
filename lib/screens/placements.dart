@@ -3,8 +3,6 @@ import 'package:tasc/dbms/dbmanager.dart';
 import 'package:tasc/dbms/dbcreds.dart';
 import 'package:tasc/extras/reusable.dart';
 
-import 'feedback.dart';
-
 class PlacementsPage extends StatefulWidget {
   const PlacementsPage({super.key});
 

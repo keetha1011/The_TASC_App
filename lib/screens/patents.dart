@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:tasc/dbms/dbmanager.dart';
 import 'package:tasc/dbms/dbcreds.dart';
 import 'package:tasc/extras/reusable.dart';
-import 'package:tasc/screens/feedback.dart';
 
 class PatentsPage extends StatefulWidget {
   const PatentsPage({super.key});
@@ -250,6 +249,7 @@ class _PatentsPageState extends State<PatentsPage>
 
   @override
   Widget build(BuildContext context) {
+    bool themeMode = (MediaQuery.of(context).platformBrightness.name == "dark");
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
@@ -259,9 +259,7 @@ class _PatentsPageState extends State<PatentsPage>
       appBar: AppBar(
         centerTitle: true,
         title: const Text("Patents"),
-        actions: [
-          feedbackBeggar(context)
-        ],
+        actions: [feedbackBeggar(context)],
         bottom: currentPageIndex == 0 && _years.isNotEmpty
             ? TabBar(
                 tabAlignment: TabAlignment.center,
@@ -389,13 +387,21 @@ class _PatentsPageState extends State<PatentsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
-                  "Title", Icons.title, false, _titleTextController),
+                context,
+                "Title",
+                Icons.title,
+                false,
+                false,
+                _titleTextController,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Patent ID",
                 Icons.insert_drive_file,
+                false,
                 false,
                 _patentIdTextController,
               ),
@@ -403,17 +409,21 @@ class _PatentsPageState extends State<PatentsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Year",
                 Icons.numbers,
                 false,
+                true,
                 _yearTextController,
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Authors",
                 Icons.person,
+                false,
                 false,
                 _authorsTextController,
               ),
@@ -421,8 +431,10 @@ class _PatentsPageState extends State<PatentsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Inventors Name",
                 Icons.person,
+                false,
                 false,
                 _inventorsNameTextController,
               ),
@@ -430,8 +442,10 @@ class _PatentsPageState extends State<PatentsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Inventors Address",
                 Icons.location_on_outlined,
+                false,
                 false,
                 _inventorsAddressTextController,
               ),
@@ -439,8 +453,10 @@ class _PatentsPageState extends State<PatentsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Certificate",
                 Icons.card_membership_outlined,
+                false,
                 false,
                 _certificateTextController,
               ),
@@ -448,8 +464,10 @@ class _PatentsPageState extends State<PatentsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Student",
                 Icons.card_membership_outlined,
+                false,
                 false,
                 _studentTextController,
               ),
@@ -457,8 +475,10 @@ class _PatentsPageState extends State<PatentsPage>
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
+                context,
                 "Faculty",
                 Icons.card_membership_outlined,
+                false,
                 false,
                 _facultyTextController,
               ),

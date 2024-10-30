@@ -1,13 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:tasc/extras/reusable.dart';
-import 'package:tasc/screens/events.dart';
-import 'package:tasc/screens/feedback.dart';
-import 'package:tasc/screens/login.dart';
-import 'package:tasc/screens/patents.dart';
-import 'package:tasc/screens/placements.dart';
-import 'package:tasc/screens/profile.dart';
-import 'package:tasc/screens/publications.dart';
-import 'package:tasc/screens/users.dart';
 
 class Home extends StatefulWidget {
   const Home({super.key});
@@ -19,11 +11,10 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
+    bool themeMode = (MediaQuery.of(context).platformBrightness.name == "dark");
     return Scaffold(
       appBar: AppBar(
-        actions: [
-          feedbackBeggar(context)
-        ],
+        actions: [feedbackBeggar(context)],
         centerTitle: true,
         title: const Text("Home"),
         leading: Builder(builder: (context) {
@@ -34,91 +25,54 @@ class _HomeState extends State<Home> {
               icon: const Icon(Icons.menu));
         }),
       ),
-      drawer: Drawer(
-        child: ListView(
-          padding: EdgeInsets.zero,
-          children: [
-            Theme(
-              data: Theme.of(context).copyWith(
-                dividerTheme: const DividerThemeData(color: Colors.transparent),
-              ),
-              child: DrawerHeader(
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    radius: 1,
-                    center: Alignment.topCenter,
-                    colors: [
-                      Colors.deepPurple,
-                      Colors.deepPurple.shade50.withOpacity(0.1)
-                    ],
-                  ),
-                  color: Colors.deepPurple.withOpacity(0.2),
-                ),
-                child: const Center(
-                  child: Text(
-                    "The TASC app",
-                    style: TextStyle(
-                        fontSize: 32,
-                        // fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                        shadows: [
-                          Shadow(color: Colors.black12, blurRadius: 16)
-                        ]),
-                  ),
-                ),
-              ),
-            ),
-            drawerListTiles(context, "Patents", const PatentsPage()),
-            drawerListTiles(context, "Publications", const PublicationsPage()),
-            drawerListTiles(context, "Placements", const PlacementsPage()),
-            drawerListTiles(context, "Users", const UsersPage()),
-            // drawerListTiles(context, "Events", const EventsPage()),
-            const SizedBox(
-              height: 20,
-            ),
-            // Container(
-            //   height: 76,
-            //   child: DecoratedBox(decoration: BoxDecoration(color: Colors.black)),
-            // )
-            ListTile(
-              title: const Text("Profile"),
-              textColor: Colors.deepPurple.shade300,
-              onTap: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => const ProfilePage()));
-              },
-            ),
-            ListTile(
-              title: const Text("SignOut"),
-              textColor: Colors.red.shade300,
-              onTap: () {
-                signOut(context);
-              },
-            )
-          ],
-        ),
-      ),
+      drawer: mainDrawer(context, themeMode),
       body: DecoratedBox(
         decoration: BoxDecoration(
           gradient: RadialGradient(
-            colors: [
-              Colors.deepPurple.shade100,
-              Colors.deepPurple.shade50.withOpacity(0.01)
-            ],
-            center: Alignment.bottomCenter,
+            colors: themeMode == false
+                ? [Colors.deepPurple.shade300, toColor("#fef7ff")]
+                : [
+                    Colors.deepPurple.shade900.withOpacity(0.3),
+                    toColor("#141414")
+                  ],
+            center: Alignment.center,
           ),
         ),
-        child: const Column(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Center(
+            const Center(
               child: Text(
-                "with great power comes great responsibility",
+                "Lorem ipsum",
+                textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 18),
               ),
             ),
+            Center(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                          color: toColor("#fef7ff"),
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(color: Colors.black12, blurRadius: 12),
+                          ]),
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height / 8,
+                        width: MediaQuery.of(context).size.height / 8,
+                        child: ClipRRect(
+                            borderRadius: BorderRadius.circular(12),
+                            child:
+                                Image.asset("assets/Images/PeterGriffin.png")),
+                      ),
+                    ),
+                  )
+                ],
+              ),
+            )
           ],
         ),
       ),

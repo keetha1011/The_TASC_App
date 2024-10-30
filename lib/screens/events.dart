@@ -60,9 +60,9 @@ class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
   }
 
   void _updateTabControllers() {
-      _tabControllerView =
-          TabController(initialIndex: 0, length: _eventCategories.length, vsync: this);
-      // _tabControllerView.addListener(_handleTabChange);
+    _tabControllerView = TabController(
+        initialIndex: 0, length: _eventCategories.length, vsync: this);
+    // _tabControllerView.addListener(_handleTabChange);
     _tabControllerEdit = TabController(
         initialIndex: 0, length: _editOptions.length, vsync: this);
   }
@@ -72,30 +72,29 @@ class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
     return Scaffold(
       appBar: AppBar(
         actions: [feedbackBeggar(context)],
-          centerTitle: true,
-          title: const Text("Events"),
-          bottom: currentPageIndex == 0
-              ? TabBar(
-            tabAlignment: TabAlignment.center,
-            isScrollable: true,
-            splashBorderRadius: BorderRadius.circular(16),
-            dividerColor: Colors.transparent,
-            controller: _tabControllerView,
-            tabs: _eventCategories.map((type) => Tab(text: type)).toList(),
-          )
-              : currentPageIndex == 1
-              ? TabBar(
-              tabAlignment: TabAlignment.center,
-              splashBorderRadius: BorderRadius.circular(16),
-              dividerColor: Colors.transparent,
-              controller: _tabControllerEdit,
-              tabs: _editOptions
-                  .map((option) =>
-                  Tab(
-                    text: option,
-                  ))
-                  .toList())
-              : null,
+        centerTitle: true,
+        title: const Text("Events"),
+        bottom: currentPageIndex == 0
+            ? TabBar(
+                tabAlignment: TabAlignment.center,
+                isScrollable: true,
+                splashBorderRadius: BorderRadius.circular(16),
+                dividerColor: Colors.transparent,
+                controller: _tabControllerView,
+                tabs: _eventCategories.map((type) => Tab(text: type)).toList(),
+              )
+            : currentPageIndex == 1
+                ? TabBar(
+                    tabAlignment: TabAlignment.center,
+                    splashBorderRadius: BorderRadius.circular(16),
+                    dividerColor: Colors.transparent,
+                    controller: _tabControllerEdit,
+                    tabs: _editOptions
+                        .map((option) => Tab(
+                              text: option,
+                            ))
+                        .toList())
+                : null,
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,
@@ -123,11 +122,9 @@ class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
     if (currentPageIndex == 0) {
       return TabBarView(
         controller: _tabControllerView,
-        children:
-        _eventCategories.map((type) => _buildBodyView()).toList(),
+        children: _eventCategories.map((type) => _buildBodyView()).toList(),
       );
-    }
-    else {
+    } else {
       return TabBarView(
         controller: _tabControllerEdit,
         children: _editOptions.map((option) => _buildBodyEdit()).toList(),
@@ -136,10 +133,10 @@ class _EventsPageState extends State<EventsPage> with TickerProviderStateMixin {
   }
 
   Widget _buildBodyView() {
-    return Scaffold();
+    return const Scaffold();
   }
 
   Widget _buildBodyEdit() {
-    return Scaffold();
+    return const Scaffold();
   }
 }

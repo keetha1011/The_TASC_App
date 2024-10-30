@@ -119,7 +119,7 @@ class _UsersPageState extends State<UsersPage> with TickerProviderStateMixin {
   }
 
   Widget _buildBodyView() {
-    return Scaffold();
+    return const Scaffold();
   }
 
   Widget _buildBodyEdit(String option) {
