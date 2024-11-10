@@ -1,11 +1,14 @@
 // import 'package:cuid2/cuid2.dart';
 // import 'package:flutter/foundation.dart';
+import 'package:cuid2/cuid2.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:tasc/dbms/dbmanager.dart';
-import 'package:tasc/dbms/dbcreds.dart';
-
-import '../extras/reusable.dart';
+import 'package:tasc/components/drawer.dart';
+import 'home.dart';
 import 'feedback.dart';
+import '../dbms/dbmanager.dart';
+import '../dbms/dbcreds.dart';
+import '../extras/reusable.dart';
 
 class PublicationsPage extends StatefulWidget {
   const PublicationsPage({super.key});
@@ -28,16 +31,24 @@ class _PublicationsPageState extends State<PublicationsPage>
   String? _errorMessage;
 
   final TextEditingController _titleTextController = TextEditingController();
-  final TextEditingController _patentIdTextController = TextEditingController();
+  final TextEditingController _publicationIdTextController =
+      TextEditingController();
   final TextEditingController _yearTextController = TextEditingController();
   final TextEditingController _authorsTextController = TextEditingController();
-  final TextEditingController _inventorsNameTextController =
+  final TextEditingController _publishDateTextController =
       TextEditingController();
-  final TextEditingController _inventorsAddressTextController =
+  final TextEditingController _publisherTextController =
       TextEditingController();
-  final TextEditingController _certificateTextController =
+  final TextEditingController _journalTextController = TextEditingController();
+  final TextEditingController _conferenceTextController =
       TextEditingController();
-  final TextEditingController _studentTextController = TextEditingController();
+  final TextEditingController _linkTextController = TextEditingController();
+  final TextEditingController _rankingTextController = TextEditingController();
+  final TextEditingController _impactFactorTextController =
+      TextEditingController();
+  final TextEditingController _indexedTextController = TextEditingController();
+  final TextEditingController _publisherConferenceTextController =
+      TextEditingController();
   final TextEditingController _facultyTextController = TextEditingController();
 
   @override
@@ -77,10 +88,10 @@ class _PublicationsPageState extends State<PublicationsPage>
 
     try {
       final completeYearTable = await _dataConnection.fetchData(
-          '''SELECT DISTINCT year FROM "Patents" ORDER BY "year" DESC ''');
+          '''SELECT DISTINCT year FROM "Publication" ORDER BY "year" DESC ''');
       List<String> tempYear = [];
       for (var i in completeYearTable) {
-        tempYear.add(i[0]);
+        tempYear.add(i[0].toString());
       }
       setState(() {
         _years = tempYear;
@@ -112,40 +123,67 @@ class _PublicationsPageState extends State<PublicationsPage>
 
   Future<void> uploadPublication() async {
     if (_titleTextController.text != "" &&
-        _patentIdTextController.text != "" &&
-        _yearTextController.text != "") {
-      // try {
-      //   await _dataConnection.fetchData('''
-      // INSERT INTO "Publication" ()
-      // VALUES ()
-      //   ''');
-      //
-      //   _titleTextController.clear();
-      //   _yearTextController.clear();
-      //   _patentIdTextController.clear();
-      //   _authorsTextController.clear();
-      //   _inventorsNameTextController.clear();
-      //   _inventorsAddressTextController.clear();
-      //   _certificateTextController.clear();
-      //   _studentTextController.clear();
-      //   _facultyTextController.clear();
-      //
-      //   await _refreshData();
-      //   if (mounted) {
-      //     ScaffoldMessenger.of(context).showSnackBar(
-      //       const SnackBar(content: Text('Publication added successfully')),
-      //     );
-      //   }
-      // } catch (e) {
-      //   if (kDebugMode) {
-      //     print(e);
-      //   }
-      //   if (mounted) {
-      //     ScaffoldMessenger.of(context).showSnackBar(
-      //       SnackBar(content: Text('Error adding publication: $e')),
-      //     );
-      //   }
-      // }
+        _publicationIdTextController.text != "" &&
+        _yearTextController.text != "" &&
+        _authorsTextController.text != "" &&
+        _publishDateTextController.text != "" &&
+        _publisherTextController.text != "" &&
+        _journalTextController.text != "" &&
+        _conferenceTextController.text != "" &&
+        _linkTextController.text != "" &&
+        _rankingTextController.text != "" &&
+        _impactFactorTextController.text != "" &&
+        _indexedTextController.text != "" &&
+        _publisherConferenceTextController.text != "") {
+      try {
+        await _dataConnection.fetchData('''
+          INSERT INTO "Publication" (id , authors, title, publish_date, publisher, journal, conference, link, ranking, impact_factor, indexed, publisher_conference, year)
+          VALUES ('${cuid(25)}', 
+            '{${_authorsTextController.text.split(',').map((e) => e.trim()).join(', ')}}',
+            '${_titleTextController.text}',
+            '${_publishDateTextController.text}',
+            '${_publisherTextController.text}',
+            '${_journalTextController.text}',
+            '${_conferenceTextController.text}',
+            '${_linkTextController.text}',
+            '${_rankingTextController.text}',
+            '${_impactFactorTextController.text}',
+            '${_indexedTextController.text}',
+            '${_publisherConferenceTextController.text}',
+            '${_yearTextController.text}')
+        ''');
+
+        _titleTextController.clear();
+        _publicationIdTextController.clear();
+        _yearTextController.clear();
+        _authorsTextController.clear();
+        _publishDateTextController.clear();
+        _publisherTextController.clear();
+        _journalTextController.clear();
+        _conferenceTextController.clear();
+        _linkTextController.clear();
+        _rankingTextController.clear();
+        _impactFactorTextController.clear();
+        _indexedTextController.clear();
+        _publisherConferenceTextController.clear();
+        _facultyTextController.clear();
+
+        await _refreshData();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Publication added successfully')),
+          );
+        }
+      } catch (e) {
+        if (kDebugMode) {
+          print(e);
+        }
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error adding publication: $e')),
+          );
+        }
+      }
     } else {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -159,7 +197,38 @@ class _PublicationsPageState extends State<PublicationsPage>
     }
   }
 
-  Future<void> deletePublication(String publication) async {}
+  Future<void> deletePublication(String publication) async {
+    try {
+      _dataConnection.fetchData(
+          '''DELETE FROM "Publication" WHERE title='$publication' ''');
+
+      await _refreshData();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "$publication was deleted",
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (kDebugMode) {
+        print(e);
+      }
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error deleting publication: $e',
+            ),
+          ),
+        );
+      }
+    }
+  }
 
   Future<void> _refreshData() async {
     _isLoading = true;
@@ -215,10 +284,18 @@ class _PublicationsPageState extends State<PublicationsPage>
 
   @override
   Widget build(BuildContext context) {
+    bool themeMode = MediaQuery.of(context).platformBrightness.name == "light";
     if (_isLoading) {
-      return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(),
+      return WillPopScope(
+        onWillPop: () async {
+          Navigator.pushReplacement(
+              context, MaterialPageRoute(builder: (context) => const Home()));
+          return false;
+        },
+        child: const Scaffold(
+          body: Center(
+            child: CircularProgressIndicator(),
+          ),
         ),
       );
     }
@@ -265,6 +342,7 @@ class _PublicationsPageState extends State<PublicationsPage>
                         .toList())
                 : null,
       ),
+      drawer: mainDrawer(context, const PublicationsPage(), themeMode),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,
         onDestinationSelected: (int index) {
@@ -328,7 +406,7 @@ class _PublicationsPageState extends State<PublicationsPage>
     } else if (!_publicationsByYear.containsKey(year) ||
         _publicationsByYear[year]!.isEmpty) {
       return Center(
-        child: Text("No Patents for $year"),
+        child: Text("No Publications for $year"),
       );
     } else {
       return Padding(
@@ -393,7 +471,7 @@ class _PublicationsPageState extends State<PublicationsPage>
                 Icons.insert_drive_file,
                 false,
                 false,
-                _patentIdTextController,
+                _publicationIdTextController,
               ),
             ),
             Padding(
@@ -412,7 +490,7 @@ class _PublicationsPageState extends State<PublicationsPage>
               child: reusableTextField(
                 context,
                 "Authors",
-                Icons.person,
+                Icons.people_alt,
                 false,
                 false,
                 _authorsTextController,
@@ -422,52 +500,86 @@ class _PublicationsPageState extends State<PublicationsPage>
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
                 context,
-                "Inventors Name",
-                Icons.person,
+                "Publish Date",
+                Icons.date_range_rounded,
                 false,
                 false,
-                _inventorsNameTextController,
+                _publishDateTextController,
               ),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: reusableTextField(
-                  context,
-                  "Inventors Address",
-                  Icons.location_on_outlined,
-                  false,
-                  false,
-                  _inventorsAddressTextController),
+              child: reusableTextField(context, "Publisher", Icons.person,
+                  false, false, _publisherTextController),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(context, "Journal", Icons.book_rounded,
+                  false, false, _journalTextController),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
                   context,
-                  "Certificate",
+                  "Conference",
                   Icons.card_membership_outlined,
                   false,
                   false,
-                  _certificateTextController),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: reusableTextField(
-                  context,
-                  "Student",
-                  Icons.card_membership_outlined,
-                  false,
-                  false,
-                  _studentTextController),
+                  _conferenceTextController),
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: reusableTextField(
                 context,
-                "Faculty",
-                Icons.card_membership_outlined,
+                "Link",
+                Icons.link,
                 false,
                 false,
-                _facultyTextController,
+                _linkTextController,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                context,
+                "Ranking",
+                Icons.precision_manufacturing_rounded,
+                false,
+                false,
+                _rankingTextController,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                context,
+                "Impact Factor",
+                Icons.factory,
+                false,
+                false,
+                _impactFactorTextController,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                context,
+                "Indexed",
+                Icons.format_indent_decrease_outlined,
+                false,
+                false,
+                _indexedTextController,
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: reusableTextField(
+                context,
+                "Publisher Conference",
+                Icons.confirmation_num_rounded,
+                false,
+                false,
+                _publisherConferenceTextController,
               ),
             ),
             Padding(
@@ -475,40 +587,7 @@ class _PublicationsPageState extends State<PublicationsPage>
               child: reusableTextField(
                 context,
                 "Faculty",
-                Icons.card_membership_outlined,
-                false,
-                false,
-                _facultyTextController,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: reusableTextField(
-                context,
-                "Faculty",
-                Icons.card_membership_outlined,
-                false,
-                false,
-                _facultyTextController,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: reusableTextField(
-                context,
-                "Faculty",
-                Icons.card_membership_outlined,
-                false,
-                false,
-                _facultyTextController,
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: reusableTextField(
-                context,
-                "Faculty",
-                Icons.card_membership_outlined,
+                Icons.people_alt,
                 false,
                 false,
                 _facultyTextController,
@@ -540,10 +619,10 @@ class _PublicationsPageState extends State<PublicationsPage>
                         ),
                       ),
                       title: Text(
-                        _publicationsInDelete[index][3].toString(),
+                        _publicationsInDelete[index][2].toString(),
                       ),
                       subtitle: Text(
-                        _publicationsInDelete[index][2].toString(),
+                        _publicationsInDelete[index][12].toString(),
                       ),
                       trailing: IconButton(
                         icon: const Icon(
@@ -552,7 +631,7 @@ class _PublicationsPageState extends State<PublicationsPage>
                         ),
                         onPressed: () async {
                           await deletePublication(
-                            _publicationsInDelete[index][3].toString(),
+                            _publicationsInDelete[index][2].toString(),
                           );
                         },
                       ),

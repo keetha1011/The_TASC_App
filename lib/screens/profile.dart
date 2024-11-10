@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:tasc/extras/reusable.dart';
 
+import '../components/drawer.dart';
 import '../dbms/dbcreds.dart';
 import '../dbms/dbmanager.dart';
 
@@ -75,7 +76,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    bool themeMode = (MediaQuery.of(context).platformBrightness.name == "dark");
+    bool themeMode = (MediaQuery.of(context).platformBrightness.name == "light");
     return Scaffold(
       body: profileDetails.isEmpty
           ? const Center(child: CircularProgressIndicator())
@@ -86,7 +87,7 @@ class _ProfilePageState extends State<ProfilePage>
                 backgroundColor: Colors.transparent,
                 actions: [feedbackBeggar(context)],
               ),
-              backgroundColor: Colors.transparent,
+              drawer: mainDrawer(context, const ProfilePage(), themeMode),
               body: Column(
                 children: [
                   Padding(

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:tasc/extras/theme.dart';
 import 'package:tasc/screens/home.dart';
 import 'package:tasc/screens/login.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -35,18 +36,8 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'TASC',
-        theme: ThemeData(
-          useMaterial3: true,
-          primarySwatch: Colors.indigo,
-          brightness: Brightness.light,
-          fontFamily: GoogleFonts.firaSansCondensed().fontFamily,
-        ),
-        darkTheme: ThemeData(
-          useMaterial3: true,
-          primarySwatch: Colors.indigo,
-          fontFamily: GoogleFonts.firaSansCondensed().fontFamily,
-          brightness: Brightness.dark,
-        ),
+        theme: lightTheme(),
+        darkTheme: darkTheme(),
         themeMode: ThemeMode.system,
         home: user != null ? const Home() : const Login());
   }

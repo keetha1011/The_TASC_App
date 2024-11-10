@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:tasc/dbms/dbmanager.dart';
-import 'package:tasc/dbms/dbcreds.dart';
-import 'package:tasc/extras/reusable.dart';
+import 'package:tasc/main.dart';
+import '../components/drawer.dart';
+import 'home.dart';
+import '../dbms/dbmanager.dart';
+import '../dbms/dbcreds.dart';
+import '../extras/reusable.dart';
 
 class PlacementsPage extends StatefulWidget {
   const PlacementsPage({super.key});
@@ -146,14 +149,28 @@ class _PlacementsPageState extends State<PlacementsPage>
 
   @override
   Widget build(BuildContext context) {
+    bool themeMode = MediaQuery.of(context).platformBrightness.name == "light";
     if (_years.isEmpty) {
-      return const Scaffold(
-        body: Center(child: CircularProgressIndicator()),
+      return Scaffold(
+        drawer: mainDrawer(context, const PlacementsPage(), themeMode),
+        body: WillPopScope(
+            onWillPop: () async {
+              Navigator.pushReplacement(
+                  context, MaterialPageRoute(builder: (context) => Home()));
+              return false;
+            },
+            child: Center(child: CircularProgressIndicator())),
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => Home()));
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
           centerTitle: true,
           title: const Text("Placements"),
           actions: [feedbackBeggar(context)],
@@ -176,35 +193,39 @@ class _PlacementsPageState extends State<PlacementsPage>
                       .map((option) => Tab(
                             text: option,
                           ))
-                      .toList())),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentPageIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-        destinations: const <Widget>[
-          NavigationDestination(
-              icon: Icon(Icons.view_day_outlined),
-              selectedIcon: Icon(Icons.view_day_rounded),
-              label: "View"),
-          NavigationDestination(
-              icon: Icon(Icons.mode_edit_rounded),
-              selectedIcon: Icon(Icons.mode_edit_outline_rounded),
-              label: "Edit")
-        ],
-      ),
-      body: <Widget>[
-        TabBarView(
-          controller: _tabControllerView,
-          children: _years.map((year) => _buildBodyView(year)).toList(),
+                      .toList(),
+                ),
         ),
-        TabBarView(
-            controller: _tabControllerEdit,
-            children:
-                _editOptions.map((option) => _buildBodyEdit(option)).toList())
-      ][currentPageIndex],
+        drawer: mainDrawer(context, const PlacementsPage(), themeMode),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: currentPageIndex,
+          onDestinationSelected: (int index) {
+            setState(() {
+              currentPageIndex = index;
+            });
+          },
+          destinations: const <Widget>[
+            NavigationDestination(
+                icon: Icon(Icons.view_day_outlined),
+                selectedIcon: Icon(Icons.view_day_rounded),
+                label: "View"),
+            NavigationDestination(
+                icon: Icon(Icons.mode_edit_rounded),
+                selectedIcon: Icon(Icons.mode_edit_outline_rounded),
+                label: "Edit")
+          ],
+        ),
+        body: <Widget>[
+          TabBarView(
+            controller: _tabControllerView,
+            children: _years.map((year) => _buildBodyView(year)).toList(),
+          ),
+          TabBarView(
+              controller: _tabControllerEdit,
+              children:
+                  _editOptions.map((option) => _buildBodyEdit(option)).toList())
+        ][currentPageIndex],
+      ),
     );
   }
 

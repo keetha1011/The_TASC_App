@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:tasc/extras/reusable.dart';
 
+import '../components/drawer.dart';
+
 class Home extends StatefulWidget {
   const Home({super.key});
 
@@ -11,7 +13,8 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
-    bool themeMode = (MediaQuery.of(context).platformBrightness.name == "dark");
+    bool themeMode =
+        (MediaQuery.of(context).platformBrightness.name == "light");
     return Scaffold(
       appBar: AppBar(
         actions: [feedbackBeggar(context)],
@@ -25,15 +28,15 @@ class _HomeState extends State<Home> {
               icon: const Icon(Icons.menu));
         }),
       ),
-      drawer: mainDrawer(context, themeMode),
+      drawer: mainDrawer(context, const Home(), themeMode),
       body: DecoratedBox(
         decoration: BoxDecoration(
           gradient: RadialGradient(
-            colors: themeMode == false
-                ? [Colors.deepPurple.shade300, toColor("#fef7ff")]
+            colors: themeMode
+                ? [Colors.deepPurple.shade300.withOpacity(0.6), Colors.white]
                 : [
                     Colors.deepPurple.shade900.withOpacity(0.3),
-                    toColor("#141414")
+                    Colors.black
                   ],
             center: Alignment.center,
           ),
@@ -43,7 +46,7 @@ class _HomeState extends State<Home> {
           children: [
             const Center(
               child: Text(
-                "Lorem ipsum",
+                "brick by brick",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 18),
               ),
@@ -55,14 +58,16 @@ class _HomeState extends State<Home> {
                     padding: const EdgeInsets.symmetric(vertical: 16.0),
                     child: DecoratedBox(
                       decoration: BoxDecoration(
-                          color: toColor("#fef7ff"),
+                          color: themeMode
+                              ? toColor("#fef7ff")
+                              : toColor("#141414"),
                           borderRadius: BorderRadius.circular(12),
                           boxShadow: [
                             BoxShadow(color: Colors.black12, blurRadius: 12),
                           ]),
                       child: SizedBox(
-                        height: MediaQuery.of(context).size.height / 8,
-                        width: MediaQuery.of(context).size.height / 8,
+                        height: MediaQuery.of(context).size.height / 6,
+                        width: MediaQuery.of(context).size.height / 6,
                         child: ClipRRect(
                             borderRadius: BorderRadius.circular(12),
                             child:

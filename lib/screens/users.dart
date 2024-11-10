@@ -1,5 +1,6 @@
 import "package:flutter/material.dart";
 
+import "../components/drawer.dart";
 import "../extras/reusable.dart";
 import "feedback.dart";
 
@@ -34,6 +35,7 @@ class _UsersPageState extends State<UsersPage> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    bool themeMode = MediaQuery.of(context).platformBrightness.name == "light";
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
@@ -75,6 +77,7 @@ class _UsersPageState extends State<UsersPage> with TickerProviderStateMixin {
                         .toList())
                 : null,
       ),
+      drawer: mainDrawer(context, const UsersPage(), themeMode),
       bottomNavigationBar: NavigationBar(
         selectedIndex: currentPageIndex,
         onDestinationSelected: (int index) {

@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:tasc/screens/feedback.dart';
-import 'package:tasc/screens/patents.dart';
-import 'package:tasc/screens/publications.dart';
-import 'package:tasc/screens/placements.dart';
-import 'package:tasc/screens/users.dart';
-import 'package:tasc/screens/profile.dart';
-import 'package:tasc/screens/login.dart';
+import '../screens/members.dart';
+import '../screens/feedback.dart';
+import '../screens/patents.dart';
+import '../screens/publications.dart';
+import '../screens/placements.dart';
+import '../screens/users.dart';
+import '../screens/profile.dart';
+import '../screens/login.dart';
+import '../screens/home.dart';
 
 Color light = toColor("#ffffff");
 // Color Dark = toColor("");
@@ -47,7 +49,7 @@ TextField reusableTextField(
         ? Colors.deepPurple.withOpacity(0.9)
         : Colors.deepPurple.shade100,
     cursorWidth: 8,
-    cursorHeight: 20,
+    cursorHeight: 32,
     style: TextStyle(
       fontSize: 32,
       color: themeMode
@@ -57,7 +59,7 @@ TextField reusableTextField(
     decoration: InputDecoration(
       prefixIcon: Icon(
         icon,
-        color: themeMode ? Colors.deepPurple : Colors.deepPurple.shade200,
+        color: themeMode ? Colors.deepPurple : Colors.indigo,
       ),
       labelText: text,
       labelStyle: TextStyle(
@@ -161,24 +163,6 @@ Container uiButton(BuildContext context, String title, Function onTap) {
   );
 }
 
-ListTile drawerListTiles(BuildContext context, String title, Widget page) {
-  return ListTile(
-    splashColor: Colors.deepPurple.withOpacity(0.2),
-    title: Text(
-      title,
-      style: const TextStyle(fontSize: 16),
-    ),
-    onTap: () {
-      Navigator.pop(context);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => page,
-        ),
-      );
-    },
-  );
-}
 
 IconButton feedbackBeggar(BuildContext context) {
   return IconButton(
@@ -192,63 +176,6 @@ IconButton feedbackBeggar(BuildContext context) {
   );
 }
 
-Drawer mainDrawer(BuildContext context, bool themeMode) {
-  return Drawer(
-    backgroundColor: themeMode == false ? Colors.deepPurple.shade50 : null,
-    child: ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        Theme(
-          data: Theme.of(context).copyWith(
-            dividerTheme: const DividerThemeData(color: Colors.transparent),
-          ),
-          child: DrawerHeader(
-            decoration: BoxDecoration(
-              gradient: RadialGradient(
-                  radius: 1,
-                  center: Alignment.topCenter,
-                  colors: themeMode == false
-                      ? [
-                          Colors.deepPurple.shade300,
-                          Colors.deepPurple.shade100.withOpacity(0.1)
-                        ]
-                      : [Colors.deepPurple.shade900, toColor("#1c1c22")]),
-            ),
-            child: Center(
-              child: Text(
-                "The TASC app",
-                style: TextStyle(
-                  fontSize: 32,
-                  color: themeMode == false ? Colors.black87 : Colors.white,
-                  shadows: const [
-                    Shadow(color: Colors.black12, blurRadius: 16)
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        drawerListTiles(context, "Patents", const PatentsPage()),
-        drawerListTiles(context, "Publications", const PublicationsPage()),
-        drawerListTiles(context, "Placements", const PlacementsPage()),
-        drawerListTiles(context, "Users", const UsersPage()),
-        const SizedBox(height: 20),
-        ListTile(
-          title: const Text("Profile"),
-          textColor: Colors.deepPurple.shade300,
-          onTap: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const ProfilePage()));
-          },
-        ),
-        ListTile(
-          title: const Text("SignOut"),
-          textColor: Colors.red.shade300,
-          onTap: () {
-            signOut(context);
-          },
-        )
-      ],
-    ),
-  );
+String resolveBracketIssueWhileUploading(String a) {
+  return "[${a.split(',').map((e) => e.trim())}]";
 }

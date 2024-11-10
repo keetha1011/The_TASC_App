@@ -44,7 +44,7 @@ class _FeedbackPageState extends State<FeedbackPage>
             Padding(
               padding: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
               child: Text(
-                "TASC Tech Team...",
+                "TASC Tech Team...\nWell most of stuff from KrashKanter 💀",
                 style: TextStyle(fontSize: 14),
               ),
             )

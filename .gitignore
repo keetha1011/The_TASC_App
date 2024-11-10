@@ -56,3 +56,6 @@ pubspec.lock
 /lib/dbms/dbcreds.dart
 /.env
 /package-lock.json
+
+# FVM Version Cache
+.fvm/

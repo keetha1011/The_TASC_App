@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:tasc/dbms/dbmanager.dart';
 import 'package:tasc/dbms/dbcreds.dart';
 import 'package:tasc/extras/reusable.dart';
+import 'package:tasc/screens/home.dart';
+
+import '../components/drawer.dart';
 
 class PatentsPage extends StatefulWidget {
   const PatentsPage({super.key});
@@ -138,11 +141,21 @@ class _PatentsPageState extends State<PatentsPage>
   Future<void> uploadPatent() async {
     if (_titleTextController.text != "" &&
         _patentIdTextController.text != "" &&
-        _yearTextController.text != "") {
+        _yearTextController.text != "" &&
+        _inventorsNameTextController.text != "" &&
+        _authorsTextController.text != "" &&
+        _inventorsAddressTextController.text != "" &&
+        _certificateTextController.text != ""
+      ) {
       try {
         await _dataConnection.fetchData('''
-      INSERT INTO "Patents" (title, year, id, "patentId") 
-      VALUES ('${_titleTextController.text}', '${_yearTextController.text}', '${cuid(25)}', '${_patentIdTextController.text}')
+          INSERT INTO "Patents" (id, title, "patentId", year, authors, "inventorsName", "inventorsAddress", certificate) 
+          VALUES ('${cuid(25)}', '${_titleTextController.text}', 
+          '${_patentIdTextController.text}', '${_yearTextController.text}', 
+          '{${_authorsTextController.text.split(',').map((e) => e.trim()).join(', ')}}', 
+          '{${_inventorsNameTextController.text.split(',').map((e) => e.trim()).join(', ')}}', 
+          '{${_inventorsAddressTextController.text.split(',').map((e) => e.trim()).join(', ')}}', 
+          '${_certificateTextController.text}')
         ''');
 
         _titleTextController.clear();
@@ -249,58 +262,68 @@ class _PatentsPageState extends State<PatentsPage>
 
   @override
   Widget build(BuildContext context) {
-    bool themeMode = (MediaQuery.of(context).platformBrightness.name == "dark");
+    bool themeMode =
+        (MediaQuery.of(context).platformBrightness.name == "light");
     if (_isLoading) {
       return const Scaffold(
         body: Center(child: CircularProgressIndicator()),
       );
     }
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        title: const Text("Patents"),
-        actions: [feedbackBeggar(context)],
-        bottom: currentPageIndex == 0 && _years.isNotEmpty
-            ? TabBar(
-                tabAlignment: TabAlignment.center,
-                isScrollable: true,
-                splashBorderRadius: BorderRadius.circular(16),
-                dividerColor: Colors.transparent,
-                controller: _tabControllerView,
-                tabs: _years.map((year) => Tab(text: year.toString())).toList(),
-              )
-            : currentPageIndex == 1
-                ? TabBar(
-                    tabAlignment: TabAlignment.center,
-                    splashBorderRadius: BorderRadius.circular(16),
-                    dividerColor: Colors.transparent,
-                    controller: _tabControllerEdit,
-                    tabs: _editOptions
-                        .map((option) => Tab(
-                              text: option,
-                            ))
-                        .toList())
-                : null,
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => Home()));
+        return false;
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          centerTitle: true,
+          title: const Text("Patents"),
+          actions: [feedbackBeggar(context)],
+          bottom: currentPageIndex == 0 && _years.isNotEmpty
+              ? TabBar(
+                  tabAlignment: TabAlignment.center,
+                  isScrollable: true,
+                  splashBorderRadius: BorderRadius.circular(16),
+                  dividerColor: Colors.transparent,
+                  controller: _tabControllerView,
+                  tabs:
+                      _years.map((year) => Tab(text: year.toString())).toList(),
+                )
+              : currentPageIndex == 1
+                  ? TabBar(
+                      tabAlignment: TabAlignment.center,
+                      splashBorderRadius: BorderRadius.circular(16),
+                      dividerColor: Colors.transparent,
+                      controller: _tabControllerEdit,
+                      tabs: _editOptions
+                          .map((option) => Tab(
+                                text: option,
+                              ))
+                          .toList())
+                  : null,
+        ),
+        drawer: mainDrawer(context, const PatentsPage(), themeMode),
+        bottomNavigationBar: NavigationBar(
+          selectedIndex: currentPageIndex,
+          onDestinationSelected: (int index) {
+            setState(() {
+              currentPageIndex = index;
+            });
+          },
+          destinations: const <Widget>[
+            NavigationDestination(
+                icon: Icon(Icons.view_day_outlined),
+                selectedIcon: Icon(Icons.view_day_rounded),
+                label: "View"),
+            NavigationDestination(
+                icon: Icon(Icons.mode_edit_rounded),
+                selectedIcon: Icon(Icons.mode_edit_outline_rounded),
+                label: "Edit")
+          ],
+        ),
+        body: _buildBody(),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: currentPageIndex,
-        onDestinationSelected: (int index) {
-          setState(() {
-            currentPageIndex = index;
-          });
-        },
-        destinations: const <Widget>[
-          NavigationDestination(
-              icon: Icon(Icons.view_day_outlined),
-              selectedIcon: Icon(Icons.view_day_rounded),
-              label: "View"),
-          NavigationDestination(
-              icon: Icon(Icons.mode_edit_rounded),
-              selectedIcon: Icon(Icons.mode_edit_outline_rounded),
-              label: "Edit")
-        ],
-      ),
-      body: _buildBody(),
     );
   }
 
@@ -346,22 +369,26 @@ class _PatentsPageState extends State<PatentsPage>
             itemCount: _patentsByYear[year]!.length,
             itemBuilder: (context, index) {
               return Card(
-                child: ListTile(
-                  leading: ClipRRect(
-                    borderRadius: const BorderRadius.all(
-                      Radius.circular(8.0),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 8.0),
+                  child: ListTile(
+                    leading: ClipRRect(
+                      borderRadius: const BorderRadius.all(
+                        Radius.circular(12.0),
+                      ),
+                      child: Image.network(
+                        "https://firebasestorage.googleapis.com/v0/b/tasc-app-ae1ac.appspot.com/o/certificates%2F2024%2FEANF.png?alt=media",
+                        fit: BoxFit.cover,
+                        height: 100,
+                      ),
                     ),
-                    child: Image.network(
-                      "https://firebasestorage.googleapis.com/v0/b/tasc-app-ae1ac.appspot.com/o/certificates%2F2024%2FEANF.png?alt=media",
-                      fit: BoxFit.cover,
-                      height: 100,
+                    title: Text(
+                      _patentsByYear[year]![index][3],
+                      style: TextStyle(fontSize: 20),
                     ),
-                  ),
-                  title: Text(
-                    _patentsByYear[year]![index][3],
-                  ),
-                  subtitle: Text(
-                    _patentsByYear[year]![index][2],
+                    subtitle: Text(
+                      _patentsByYear[year]![index][2],
+                    ),
                   ),
                 ),
               );
@@ -375,6 +402,7 @@ class _PatentsPageState extends State<PatentsPage>
   Widget _buildBodyEdit(String option) {
     if (option == "Add") {
       return Scaffold(
+        backgroundColor: Colors.transparent,
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
         floatingActionButton: FloatingActionButton(
           onPressed: () {
@@ -498,33 +526,37 @@ class _PatentsPageState extends State<PatentsPage>
                 itemCount: _patentsInDelete.length,
                 itemBuilder: (context, index) {
                   return Card(
-                    child: ListTile(
-                      leading: ClipRRect(
-                        borderRadius: const BorderRadius.all(
-                          Radius.circular(8.0),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      child: ListTile(
+                        leading: ClipRRect(
+                          borderRadius: const BorderRadius.all(
+                            Radius.circular(8.0),
+                          ),
+                          child: Image.network(
+                            "https://firebasestorage.googleapis.com/v0/b/tasc-app-ae1ac.appspot.com/o/certificates%2F2024%2FEANF.png?alt=media",
+                            fit: BoxFit.cover,
+                            height: 100,
+                          ),
                         ),
-                        child: Image.network(
-                          "https://firebasestorage.googleapis.com/v0/b/tasc-app-ae1ac.appspot.com/o/certificates%2F2024%2FEANF.png?alt=media",
-                          fit: BoxFit.cover,
-                          height: 100,
+                        title: Text(
+                          _patentsInDelete[index][3].toString(),
+                          style: TextStyle(fontSize: 20),
                         ),
-                      ),
-                      title: Text(
-                        _patentsInDelete[index][3].toString(),
-                      ),
-                      subtitle: Text(
-                        _patentsInDelete[index][2].toString(),
-                      ),
-                      trailing: IconButton(
-                        icon: const Icon(
-                          Icons.delete,
-                          color: Colors.deepPurple,
+                        subtitle: Text(
+                          _patentsInDelete[index][2].toString(),
                         ),
-                        onPressed: () async {
-                          await deletePatent(
-                            _patentsInDelete[index][3].toString(),
-                          );
-                        },
+                        trailing: IconButton(
+                          icon: const Icon(
+                            Icons.delete,
+                            color: Colors.black,
+                          ),
+                          onPressed: () async {
+                            await deletePatent(
+                              _patentsInDelete[index][3].toString(),
+                            );
+                          },
+                        ),
                       ),
                     ),
                   );
