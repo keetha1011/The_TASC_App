@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../screens/home.dart';
 import '../screens/login.dart';
@@ -9,138 +8,194 @@ import '../screens/placements.dart';
 import '../screens/profile.dart';
 import '../screens/publications.dart';
 import '../screens/settings.dart';
+import 'package:flutter/material.dart';
 
-Drawer mainDrawer(BuildContext context, Widget currentPage, bool themeMode) {
-  return Drawer(
-    shape: const RoundedRectangleBorder(
-      borderRadius: BorderRadius.only(
-        topRight: Radius.circular(0),
-        bottomRight: Radius.circular(0),
+NavigationDrawer mainDrawer(BuildContext context, Widget currentPage, bool themeMode) {
+  return NavigationDrawer(
+    backgroundColor: themeMode ? Colors.white : Colors.black,
+    elevation: 1,
+    selectedIndex: _getSelectedIndex(currentPage),
+    onDestinationSelected: (index) {
+      Navigator.pop(context); // Close the drawer
+      switch (index) {
+        case 0: // Home
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const Home()),
+          );
+          break;
+        case 1: // Patents
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const PatentsPage()),
+          );
+          break;
+        case 2: // Publications
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const PublicationsPage()),
+          );
+          break;
+        case 3: // Placements
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const PlacementsPage()),
+          );
+          break;
+        case 4: // Core
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const CoreMembersPage()),
+          );
+          break;
+        case 5: // Profile
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const ProfilePage()),
+          );
+          break;
+        case 6: // Settings
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const SettingsPage()),
+          );
+          break;
+        case 7: // Sign Out
+          signOut(context);
+          break;
+      }
+    },
+    children: [
+      DrawerHeader(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            radius: 1,
+            center: Alignment.topRight,
+            colors: themeMode
+                ? [
+              Colors.deepPurple.shade300.withOpacity(0.8),
+              Colors.white.withOpacity(0.4)
+            ]
+                : [
+              Colors.deepPurple.shade900,
+              Colors.black.withOpacity(0.9)
+            ],
+          ),
+        ),
+        child: Align(
+          alignment: Alignment.bottomLeft,
+          child: Text(
+            "The TASC app",
+            style: TextStyle(
+              fontSize: 32,
+              fontWeight: FontWeight.w100,
+              color: themeMode ? Colors.black87 : Colors.white,
+              shadows: const [
+                Shadow(color: Colors.black12, blurRadius: 16),
+              ],
+            ),
+          ),
+        ),
       ),
+      const SizedBox(height: 12),
+      _buildNavigationItem(
+        title: 'Home',
+        icon: Icons.home_outlined,
+        selectedIcon: Icons.home,
+        themeMode: themeMode,
+      ),
+      _buildNavigationItem(
+        title: 'Patents',
+        icon: Icons.description_outlined,
+        selectedIcon: Icons.description,
+        themeMode: themeMode,
+      ),
+      _buildNavigationItem(
+        title: 'Publications',
+        icon: Icons.article_outlined,
+        selectedIcon: Icons.article,
+        themeMode: themeMode,
+      ),
+      _buildNavigationItem(
+        title: 'Placements',
+        icon: Icons.work_outline,
+        selectedIcon: Icons.work,
+        themeMode: themeMode,
+      ),
+      _buildNavigationItem(
+        title: 'Core',
+        icon: Icons.people_outline,
+        selectedIcon: Icons.people,
+        themeMode: themeMode,
+      ),
+      const Divider(indent: 16, endIndent: 16),
+      _buildNavigationItem(
+        title: 'Profile',
+        icon: Icons.person_outline,
+        selectedIcon: Icons.person,
+        themeMode: themeMode,
+      ),
+      _buildNavigationItem(
+        title: 'Settings',
+        icon: Icons.settings_outlined,
+        selectedIcon: Icons.settings,
+        themeMode: themeMode,
+        textColor: Colors.deepPurple.shade300,
+      ),
+      _buildNavigationItem(
+        title: 'Sign Out',
+        icon: Icons.logout_outlined,
+        selectedIcon: Icons.logout,
+        textColor: Colors.red.shade300,
+        themeMode: themeMode,
+      ),
+    ],
+  );
+}
+
+NavigationDrawerDestination _buildNavigationItem({
+  required String title,
+  required IconData icon,
+  required IconData selectedIcon,
+  Color? textColor,
+  required bool themeMode,
+}) {
+  return NavigationDrawerDestination(
+    icon: Icon(
+      icon,
+      color: textColor ?? (themeMode ? Colors.black87 : Colors.white70),
     ),
-    child: ListView(
-      padding: EdgeInsets.zero,
-      children: [
-        DrawerHeader(
-          decoration: BoxDecoration(
-            gradient: RadialGradient(
-                radius: 1,
-                center: Alignment.topRight,
-                colors: themeMode
-                    ? [
-                        Colors.deepPurple.shade300.withOpacity(0.8),
-                        Colors.white.withOpacity(0.4)
-                      ]
-                    : [
-                        Colors.deepPurple.shade900,
-                        Colors.black.withOpacity(0.9)
-                      ]),
-          ),
-          child: Align(
-            alignment: Alignment.bottomLeft,
-            child: Text(
-              "The TASC app",
-              style: TextStyle(
-                fontSize: 32,
-                // fontFamily: GoogleFonts.cairo().fontFamily,
-                fontWeight: FontWeight.w100,
-                color: themeMode ? Colors.black87 : Colors.white,
-                shadows: const [
-                  Shadow(color: Colors.black12, blurRadius: 16),
-                ],
-              ),
-            ),
-          ),
-        ),
-        drawerListTiles(context, "Home", const Home(), currentPage, themeMode),
-        drawerListTiles(
-            context, "Patents", const PatentsPage(), currentPage, themeMode),
-        drawerListTiles(context, "Publications", const PublicationsPage(),
-            currentPage, themeMode),
-        drawerListTiles(context, "Placements", const PlacementsPage(),
-            currentPage, themeMode),
-        // drawerListTiles(context, "Users", const UsersPage(), currentPage),
-        drawerListTiles(
-            context, "Core", const CoreMembersPage(), currentPage, themeMode),
-        const SizedBox(height: 20),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: ListTile(
-            tileColor: currentPage.toString() == "ProfilePage"
-                ? Colors.deepPurple.shade200.withOpacity(0.4)
-                : null,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            title: const Text("Profile"),
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const ProfilePage()));
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: ListTile(
-            tileColor: currentPage.toString() == "SettingsPage"
-                ? Colors.deepPurple.shade200.withOpacity(0.4)
-                : null,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            title: const Text("Settings"),
-            textColor: Colors.deepPurple.shade300,
-            onTap: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => const SettingsPage()));
-            },
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: ListTile(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            title: const Text("SignOut"),
-            textColor: Colors.red.shade300,
-            onTap: () {
-              signOut(context);
-            },
-          ),
-        )
-      ],
+    selectedIcon: Icon(
+      selectedIcon,
+      color: textColor ?? (themeMode ? Colors.black : Colors.white),
+    ),
+    label: Text(
+      title,
+      style: TextStyle(
+        color: textColor ?? (themeMode ? Colors.black87 : Colors.white),
+        fontSize: 16,
+      ),
     ),
   );
 }
 
-Padding drawerListTiles(BuildContext context, String title, Widget page,
-    Widget currentPage, bool themeMode) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
-    child: ListTile(
-      tileColor: currentPage.toString() == page.toString()
-          ? themeMode
-              ? Colors.deepPurple.shade200.withOpacity(0.4)
-              : Colors.deepPurple.shade900.withOpacity(0.4)
-          : null,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      splashColor: themeMode
-          ? Colors.deepPurple.withOpacity(0.2)
-          : Colors.deepPurple.shade900,
-      title: Text(
-        title,
-        style: const TextStyle(fontSize: 16),
-      ),
-      onTap: () {
-        Navigator.pop(context);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => page,
-          ),
-        );
-      },
-    ),
-  );
+int _getSelectedIndex(Widget currentPage) {
+  switch (currentPage.runtimeType.toString()) {
+    case 'Home':
+      return 0;
+    case 'PatentsPage':
+      return 1;
+    case 'PublicationsPage':
+      return 2;
+    case 'PlacementsPage':
+      return 3;
+    case 'CoreMembersPage':
+      return 4;
+    case 'ProfilePage':
+      return 5;
+    case 'SettingsPage':
+      return 6;
+    default:
+      return 0;
+  }
 }
